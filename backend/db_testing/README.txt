@@ -1,0 +1,1 @@
+This folder will be used for anything database related such as retrieving and deleting items in the database. These functions will be useful for the REST API.
