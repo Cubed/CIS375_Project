@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useCart } from "../contexts/CartContext";
 
 const ProductDetail = () => {
   const { productId } = useParams();
+  const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,39 +26,8 @@ const ProductDetail = () => {
     fetchProduct();
   }, [productId]);
 
-  const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
-    const emptyStars = 5 - fullStars - halfStar;
-
-    return (
-      <>
-        {Array(fullStars)
-          .fill("★")
-          .map((star, index) => (
-            <span key={`full-${index}`} className="star full">
-              {star}
-            </span>
-          ))}
-        {halfStar === 1 && <span className="star half">★</span>}
-        {Array(emptyStars)
-          .fill("☆")
-          .map((star, index) => (
-            <span key={`empty-${index}`} className="star empty">
-              {star}
-            </span>
-          ))}
-      </>
-    );
-  };
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (!product) {
-    return <p>Product not found.</p>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (!product) return <p>Product not found.</p>;
 
   return (
     <div className="product-detail">
@@ -66,11 +37,9 @@ const ProductDetail = () => {
         className="product-detail-image"
       />
       <h2>{product.name}</h2>
-      <div className="product-rating">{renderStars(product.rating || 0)}</div>
       <p>{product.description}</p>
       <p>Price: ${product.price}</p>
-      <p>Category: {product.category}</p>
-      <p>Rating: {product.rating}</p>
+      <button onClick={() => addToCart(product)}>Add to Cart</button>
     </div>
   );
 };
