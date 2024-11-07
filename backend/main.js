@@ -1,4 +1,4 @@
-require('dotenv').config(); // Load environment variables
+require("dotenv").config(); // Load environment variables
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -18,10 +18,12 @@ app.use(helmet()); // Set various HTTP headers for security
 app.use(bodyParser.json());
 
 // CORS Configuration
-app.use(cors({
-  origin: "http://localhost:3000", // Update this to your frontend's domain
-  optionsSuccessStatus: 200
-}));
+app.use(
+  cors({
+    origin: "*",
+    optionsSuccessStatus: 200,
+  })
+);
 
 // Logging Middleware
 app.use(morgan("combined"));
@@ -30,28 +32,31 @@ app.use(morgan("combined"));
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: "Too many requests from this IP, please try again after 15 minutes."
+  message: "Too many requests from this IP, please try again after 15 minutes.",
 });
 app.use(limiter);
 
 // Environment Variables
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret"; // Use a strong secret in production
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/shopDB";
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/shopDB";
 
 // Connect to MongoDB
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log("Connected to MongoDB"))
-  .catch(err => console.error("Connection error", err));
+mongoose
+  .connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("Connection error", err));
 
 // Schemas and Models
 
 // User Schema
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
-  email:    { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   savedPaymentInfo: {
     cardNumber: { type: String, required: true },
@@ -121,7 +126,8 @@ const Order = mongoose.model("Order", orderSchema);
 // Middleware for authentication
 const authenticateToken = (req, res, next) => {
   const authHeader = req.header("Authorization");
-  const token = authHeader && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const token =
+    authHeader && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
   if (!token) return res.status(401).send("Access denied. No token provided.");
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
@@ -147,24 +153,24 @@ const authorizeAdmin = (req, res, next) => {
  */
 function validateLuhn(cardNumber) {
   // Remove all non-digit characters
-  const sanitized = cardNumber.replace(/\D/g, '');
-  
+  const sanitized = cardNumber.replace(/\D/g, "");
+
   let sum = 0;
   let shouldDouble = false;
-  
+
   // Iterate over the card number digits from right to left
   for (let i = sanitized.length - 1; i >= 0; i--) {
     let digit = parseInt(sanitized.charAt(i), 10);
-    
+
     if (shouldDouble) {
       digit *= 2;
       if (digit > 9) digit -= 9;
     }
-    
+
     sum += digit;
     shouldDouble = !shouldDouble;
   }
-  
+
   // If the total modulo 10 is 0, the number is valid
   return sum % 10 === 0;
 }
@@ -186,7 +192,9 @@ app.post("/purchase/:productId", authenticateToken, async (req, res) => {
     const entitlement = new Entitlement({ userId: req.user.id, productId });
     await entitlement.save();
 
-    res.status(200).send({ message: "Product purchased and entitlement created" });
+    res
+      .status(200)
+      .send({ message: "Product purchased and entitlement created" });
   } catch (error) {
     console.error("Error purchasing product:", error);
     res.status(500).send("Internal server error.");
@@ -217,19 +225,23 @@ app.get("/products", async (req, res) => {
     // If user is authenticated, get their entitlements
     if (user) {
       // Fetch entitlements for the authenticated user
-      const entitlements = await Entitlement.find({ userId: user.id }).populate("productId");
+      const entitlements = await Entitlement.find({ userId: user.id }).populate(
+        "productId"
+      );
 
       // Collect tags from entitled products
       const entitledTags = new Set();
-      entitlements.forEach(entitlement => {
+      entitlements.forEach((entitlement) => {
         if (entitlement.productId && entitlement.productId.tags) {
-          entitlement.productId.tags.forEach(tag => entitledTags.add(tag));
+          entitlement.productId.tags.forEach((tag) => entitledTags.add(tag));
         }
       });
 
       // If we have tags from entitled products, find recommended products
       if (entitledTags.size > 0) {
-        recommendedProducts = await Product.find({ tags: { $in: Array.from(entitledTags) } });
+        recommendedProducts = await Product.find({
+          tags: { $in: Array.from(entitledTags) },
+        });
       }
     }
 
@@ -237,13 +249,15 @@ app.get("/products", async (req, res) => {
     let sortedProducts = products;
     if (recommendedProducts.length > 0) {
       // Create a map for quick lookup of recommended product IDs
-      const recommendedIds = new Set(recommendedProducts.map(prod => prod._id.toString()));
+      const recommendedIds = new Set(
+        recommendedProducts.map((prod) => prod._id.toString())
+      );
 
       // Separate recommended and non-recommended products
       const recommended = [];
       const nonRecommended = [];
 
-      products.forEach(product => {
+      products.forEach((product) => {
         if (recommendedIds.has(product._id.toString())) {
           recommended.push(product);
         } else {
@@ -274,8 +288,12 @@ app.post(
   authorizeAdmin,
   [
     body("name").notEmpty().withMessage("Product name is required."),
-    body("price").isFloat({ gt: 0 }).withMessage("Price must be a positive number."),
-    body("tags").isArray({ min: 1 }).withMessage("At least one tag is required."),
+    body("price")
+      .isFloat({ gt: 0 })
+      .withMessage("Price must be a positive number."),
+    body("tags")
+      .isArray({ min: 1 })
+      .withMessage("At least one tag is required."),
     body("tags.*").isString().withMessage("Each tag must be a string."),
     body("imageUrl").isURL().withMessage("A valid image URL is required."),
     // Add more validations as needed
@@ -304,10 +322,22 @@ app.put(
   authenticateToken,
   authorizeAdmin,
   [
-    body("price").optional().isFloat({ gt: 0 }).withMessage("Price must be a positive number."),
-    body("tags").optional().isArray({ min: 1 }).withMessage("At least one tag is required."),
-    body("tags.*").optional().isString().withMessage("Each tag must be a string."),
-    body("imageUrl").optional().isURL().withMessage("A valid image URL is required."),
+    body("price")
+      .optional()
+      .isFloat({ gt: 0 })
+      .withMessage("Price must be a positive number."),
+    body("tags")
+      .optional()
+      .isArray({ min: 1 })
+      .withMessage("At least one tag is required."),
+    body("tags.*")
+      .optional()
+      .isString()
+      .withMessage("Each tag must be a string."),
+    body("imageUrl")
+      .optional()
+      .isURL()
+      .withMessage("A valid image URL is required."),
     // Add more validations as needed
   ],
   async (req, res) => {
@@ -318,7 +348,9 @@ app.put(
     }
 
     try {
-      const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+      });
       if (!product) return res.status(404).send("Product not found.");
       res.send(product);
     } catch (error) {
@@ -353,7 +385,9 @@ app.post(
   authenticateToken,
   [
     body("productId").notEmpty().withMessage("Product ID is required."),
-    body("quantity").isInt({ gt: 0 }).withMessage("Quantity must be a positive integer."),
+    body("quantity")
+      .isInt({ gt: 0 })
+      .withMessage("Quantity must be a positive integer."),
   ],
   async (req, res) => {
     // Validate input
@@ -371,7 +405,9 @@ app.post(
       let cart = await Cart.findOne({ userId: req.user.id });
 
       if (cart) {
-        const item = cart.products.find(p => p.productId.toString() === productId);
+        const item = cart.products.find(
+          (p) => p.productId.toString() === productId
+        );
         if (item) {
           item.quantity += quantity;
         } else {
@@ -397,7 +433,9 @@ app.put(
   "/cart/:productId",
   authenticateToken,
   [
-    body("quantity").isInt({ gt: 0 }).withMessage("Quantity must be a positive integer."),
+    body("quantity")
+      .isInt({ gt: 0 })
+      .withMessage("Quantity must be a positive integer."),
   ],
   async (req, res) => {
     // Validate input
@@ -412,7 +450,9 @@ app.put(
       const cart = await Cart.findOne({ userId: req.user.id });
 
       if (cart) {
-        const item = cart.products.find(p => p.productId.toString() === productId);
+        const item = cart.products.find(
+          (p) => p.productId.toString() === productId
+        );
         if (item) {
           item.quantity = quantity;
           await cart.save();
@@ -428,53 +468,49 @@ app.put(
 );
 
 // Remove product from cart
-app.delete(
-  "/cart/:productId",
-  authenticateToken,
-  async (req, res) => {
-    const { productId } = req.params;
-    try {
-      const cart = await Cart.findOne({ userId: req.user.id });
+app.delete("/cart/:productId", authenticateToken, async (req, res) => {
+  const { productId } = req.params;
+  try {
+    const cart = await Cart.findOne({ userId: req.user.id });
 
-      if (cart) {
-        const initialLength = cart.products.length;
-        cart.products = cart.products.filter(p => p.productId.toString() !== productId);
-        if (cart.products.length === initialLength) {
-          return res.status(404).send("Product not found in cart.");
-        }
-        await cart.save();
-        return res.send(cart);
+    if (cart) {
+      const initialLength = cart.products.length;
+      cart.products = cart.products.filter(
+        (p) => p.productId.toString() !== productId
+      );
+      if (cart.products.length === initialLength) {
+        return res.status(404).send("Product not found in cart.");
       }
-      res.status(404).send("Cart not found.");
-    } catch (error) {
-      console.error("Error removing from cart:", error);
-      res.status(500).send("Internal server error.");
+      await cart.save();
+      return res.send(cart);
     }
+    res.status(404).send("Cart not found.");
+  } catch (error) {
+    console.error("Error removing from cart:", error);
+    res.status(500).send("Internal server error.");
   }
-);
+});
 
 // Get Cart Total
-app.get(
-  "/cart/total",
-  authenticateToken,
-  async (req, res) => {
-    try {
-      const cart = await Cart.findOne({ userId: req.user.id }).populate("products.productId");
-      if (!cart) return res.status(404).send("Cart not found.");
+app.get("/cart/total", authenticateToken, async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ userId: req.user.id }).populate(
+      "products.productId"
+    );
+    if (!cart) return res.status(404).send("Cart not found.");
 
-      const total = cart.products.reduce((sum, item) => {
-        if (item.productId) {
-          return sum + item.productId.price * item.quantity;
-        }
-        return sum;
-      }, 0);
-      res.send({ total });
-    } catch (error) {
-      console.error("Error calculating cart total:", error);
-      res.status(500).send("Internal server error.");
-    }
+    const total = cart.products.reduce((sum, item) => {
+      if (item.productId) {
+        return sum + item.productId.price * item.quantity;
+      }
+      return sum;
+    }, 0);
+    res.send({ total });
+  } catch (error) {
+    console.error("Error calculating cart total:", error);
+    res.status(500).send("Internal server error.");
   }
-);
+});
 
 // Product Search & Filters
 app.get("/products/search", async (req, res) => {
@@ -483,9 +519,9 @@ app.get("/products/search", async (req, res) => {
   if (keyword) query.name = new RegExp(keyword, "i");
   if (category) query.category = category;
   if (minPrice || maxPrice) {
-    query.price = { 
-      $gte: minPrice ? parseFloat(minPrice) : 0, 
-      $lte: maxPrice ? parseFloat(maxPrice) : Infinity 
+    query.price = {
+      $gte: minPrice ? parseFloat(minPrice) : 0,
+      $lte: maxPrice ? parseFloat(maxPrice) : Infinity,
     };
   }
   try {
@@ -506,16 +542,14 @@ app.post(
     body("username")
       .isLength({ min: 3 })
       .withMessage("Username must be at least 3 characters long."),
-    body("email")
-      .isEmail()
-      .withMessage("Invalid email address."),
+    body("email").isEmail().withMessage("Invalid email address."),
     body("password")
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long."),
     body("savedPaymentInfo.cardNumber")
       .matches(/^\d{13,19}$/)
       .withMessage("Invalid card number format.")
-      .custom(value => validateLuhn(value))
+      .custom((value) => validateLuhn(value))
       .withMessage("Invalid credit card number."),
     body("savedPaymentInfo.cardHolderName")
       .notEmpty()
@@ -526,18 +560,12 @@ app.post(
     body("savedPaymentInfo.cvv")
       .matches(/^\d{3,4}$/)
       .withMessage("Invalid CVV."),
-    body("shippingInfo.address")
-      .notEmpty()
-      .withMessage("Address is required."),
-    body("shippingInfo.state")
-      .notEmpty()
-      .withMessage("State is required."),
+    body("shippingInfo.address").notEmpty().withMessage("Address is required."),
+    body("shippingInfo.state").notEmpty().withMessage("State is required."),
     body("shippingInfo.zipcode")
       .matches(/^\d{5}(-\d{4})?$/)
       .withMessage("Invalid zipcode."),
-    body("shippingInfo.city")
-      .notEmpty()
-      .withMessage("City is required."),
+    body("shippingInfo.city").notEmpty().withMessage("City is required."),
   ],
   async (req, res) => {
     // Validate input
@@ -546,7 +574,8 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, email, password, savedPaymentInfo, shippingInfo } = req.body;
+    const { username, email, password, savedPaymentInfo, shippingInfo } =
+      req.body;
     try {
       // Check if user already exists
       const existingUser = await User.findOne({ email });
@@ -558,7 +587,13 @@ app.post(
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create new user
-      const user = new User({ username, email, password: hashedPassword, savedPaymentInfo, shippingInfo });
+      const user = new User({
+        username,
+        email,
+        password: hashedPassword,
+        savedPaymentInfo,
+        shippingInfo,
+      });
       await user.save();
       res.status(201).send({
         message: "User registered successfully.",
@@ -593,7 +628,7 @@ app.post(
     const { email, password } = req.body;
     try {
       const user = await User.findOne({ email });
-      if (user && await bcrypt.compare(password, user.password)) {
+      if (user && (await bcrypt.compare(password, user.password))) {
         const token = jwt.sign(
           { id: user._id, isAdmin: user.isAdmin },
           JWT_SECRET,
@@ -621,33 +656,47 @@ app.put(
   "/account/update",
   authenticateToken,
   [
-    body("username").optional().isLength({ min: 3 }).withMessage("Username must be at least 3 characters long."),
+    body("username")
+      .optional()
+      .isLength({ min: 3 })
+      .withMessage("Username must be at least 3 characters long."),
     body("email").optional().isEmail().withMessage("Invalid email address."),
-    body("password").optional().isLength({ min: 6 }).withMessage("Password must be at least 6 characters long."),
-    body("savedPaymentInfo.cardNumber").optional()
+    body("password")
+      .optional()
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters long."),
+    body("savedPaymentInfo.cardNumber")
+      .optional()
       .matches(/^\d{13,19}$/)
       .withMessage("Invalid card number format.")
-      .custom(value => validateLuhn(value))
+      .custom((value) => validateLuhn(value))
       .withMessage("Invalid credit card number."),
-    body("savedPaymentInfo.cardHolderName").optional()
+    body("savedPaymentInfo.cardHolderName")
+      .optional()
       .notEmpty()
       .withMessage("Card holder name is required."),
-    body("savedPaymentInfo.expiryDate").optional()
+    body("savedPaymentInfo.expiryDate")
+      .optional()
       .matches(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/)
       .withMessage("Invalid expiry date. Format: MM/YY"),
-    body("savedPaymentInfo.cvv").optional()
+    body("savedPaymentInfo.cvv")
+      .optional()
       .matches(/^\d{3,4}$/)
       .withMessage("Invalid CVV."),
-    body("shippingInfo.address").optional()
+    body("shippingInfo.address")
+      .optional()
       .notEmpty()
       .withMessage("Address is required."),
-    body("shippingInfo.state").optional()
+    body("shippingInfo.state")
+      .optional()
       .notEmpty()
       .withMessage("State is required."),
-    body("shippingInfo.zipcode").optional()
+    body("shippingInfo.zipcode")
+      .optional()
       .matches(/^\d{5}(-\d{4})?$/)
       .withMessage("Invalid zipcode."),
-    body("shippingInfo.city").optional()
+    body("shippingInfo.city")
+      .optional()
       .notEmpty()
       .withMessage("City is required."),
   ],
@@ -664,7 +713,9 @@ app.put(
         updates.password = await bcrypt.hash(updates.password, 10);
       }
 
-      const user = await User.findByIdAndUpdate(req.user.id, updates, { new: true });
+      const user = await User.findByIdAndUpdate(req.user.id, updates, {
+        new: true,
+      });
       if (!user) return res.status(404).send("User not found.");
       res.send({
         message: "Account updated successfully.",
@@ -690,7 +741,7 @@ app.post(
     body("savedPaymentInfo.cardNumber")
       .matches(/^\d{13,19}$/)
       .withMessage("Invalid card number format.")
-      .custom(value => validateLuhn(value))
+      .custom((value) => validateLuhn(value))
       .withMessage("Invalid credit card number."),
     body("savedPaymentInfo.cardHolderName")
       .notEmpty()
@@ -711,7 +762,11 @@ app.post(
 
     const { savedPaymentInfo } = req.body;
     try {
-      const user = await User.findByIdAndUpdate(req.user.id, { savedPaymentInfo }, { new: true });
+      const user = await User.findByIdAndUpdate(
+        req.user.id,
+        { savedPaymentInfo },
+        { new: true }
+      );
       if (!user) return res.status(404).send("User not found.");
       res.send({
         message: "Payment information saved successfully.",
@@ -735,7 +790,9 @@ app.post(
   "/products/:id/review",
   authenticateToken,
   [
-    body("rating").isInt({ min: 1, max: 5 }).withMessage("Rating must be between 1 and 5."),
+    body("rating")
+      .isInt({ min: 1, max: 5 })
+      .withMessage("Rating must be between 1 and 5."),
     body("comment").optional().isString(),
   ],
   async (req, res) => {
@@ -769,7 +826,10 @@ app.post(
 // Get all reviews for a product
 app.get("/products/:id/reviews", async (req, res) => {
   try {
-    const reviews = await Review.find({ productId: req.params.id }).populate("userId", "username");
+    const reviews = await Review.find({ productId: req.params.id }).populate(
+      "userId",
+      "username"
+    );
     res.send(reviews);
   } catch (error) {
     console.error("Error fetching reviews:", error);
@@ -785,9 +845,13 @@ app.post(
   authenticateToken,
   authorizeAdmin,
   [
-    body("username").isLength({ min: 3 }).withMessage("Username must be at least 3 characters long."),
+    body("username")
+      .isLength({ min: 3 })
+      .withMessage("Username must be at least 3 characters long."),
     body("email").isEmail().withMessage("Invalid email address."),
-    body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters long."),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters long."),
   ],
   async (req, res) => {
     // Validate input
@@ -886,15 +950,19 @@ app.post(
   "/purchase/guest",
   [
     body("productId").notEmpty().withMessage("Product ID is required."),
-    body("quantity").isInt({ gt: 0 }).withMessage("Quantity must be a positive integer."),
+    body("quantity")
+      .isInt({ gt: 0 })
+      .withMessage("Quantity must be a positive integer."),
     body("shippingInfo.address").notEmpty().withMessage("Address is required."),
     body("shippingInfo.state").notEmpty().withMessage("State is required."),
-    body("shippingInfo.zipcode").matches(/^\d{5}(-\d{4})?$/).withMessage("Invalid zipcode."),
+    body("shippingInfo.zipcode")
+      .matches(/^\d{5}(-\d{4})?$/)
+      .withMessage("Invalid zipcode."),
     body("shippingInfo.city").notEmpty().withMessage("City is required."),
     body("paymentInfo.cardNumber")
       .matches(/^\d{13,19}$/)
       .withMessage("Invalid card number format.")
-      .custom(value => validateLuhn(value))
+      .custom((value) => validateLuhn(value))
       .withMessage("Invalid credit card number."),
     body("paymentInfo.cardHolderName")
       .notEmpty()

@@ -1,0 +1,13 @@
+/* src/ProductDetail.css */
+
+.product-detail {
+  text-align: center;
+  padding: 20px;
+}
+
+.product-detail-image {
+  max-width: 400px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+}

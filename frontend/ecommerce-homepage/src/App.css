@@ -24,12 +24,37 @@
 }
 
 .product-image {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
+  width: 80%; /* Set the width of the image to 80% of the product card */
+  max-width: 150px; /* Set a max width so it doesn’t grow too large */
+  height: auto; /* Maintain aspect ratio */
+  margin: 0 auto; /* Center the image */
+  display: block; /* Ensure the image is a block element for centering */
 }
 
 .product-name {
   margin-top: 10px;
   font-size: 1.2em;
+}
+
+.product-rating {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.star {
+  font-size: 1.2em;
+  margin: 0 2px;
+}
+
+.star.full {
+  color: #ffd700; /* Gold for full stars */
+}
+
+.star.half {
+  color: #ffd700; /* Same color, but indicate it's a half star if you use an image or alternate symbol */
+}
+
+.star.empty {
+  color: #ddd; /* Gray for empty stars */
 }

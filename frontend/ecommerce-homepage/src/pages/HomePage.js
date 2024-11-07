@@ -10,7 +10,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/products"); // Replace with your backend's URL if needed
+        const response = await axios.get("http://localhost:3001/products"); // Replace with your backend's URL if needed
         setProducts(response.data.products);
         setLoading(false);
       } catch (error) {
