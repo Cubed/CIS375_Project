@@ -405,6 +405,22 @@ app.delete(
 
 // Cart System
 
+//Get items from cart
+app.get("/cart", authenticateToken, async (req, res) => {
+  try {
+    let cart = await Cart.findOne({ userId: req.user.id }).populate('products.productId');
+
+    if (!cart) {
+      return res.status(404).send("Cart not found.");
+    }
+
+    res.status(200).json(cart.products);
+  } catch (error) {
+    console.error("Error fetching cart items:", error);
+    res.status(500).send("Internal server error.");
+  }
+});
+
 // Add product to cart
 app.post(
   "/cart",
