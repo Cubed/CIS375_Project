@@ -2,11 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { useCart } from "../contexts/CartContext";
 
 const ProductDetail = () => {
   const { productId } = useParams();
-  const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -26,6 +24,23 @@ const ProductDetail = () => {
     fetchProduct();
   }, [productId]);
 
+  const addToCart = async () => {
+    try {
+      await axios.post(
+        "http://localhost:3001/cart",
+        { productId: product._id, quantity: 1 },
+        {
+          headers: {
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmMyMjMwMDg3OGI3YjJhYzJmYTZkZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTczMDk1NDk5MywiZXhwIjoxNzMwOTU4NTkzfQ.U36cEaRd--1E0En0tbaOmvmh1f9O20gdS1JNp9mIV_A`, // Replace with actual token
+          },
+        }
+      );
+      alert("Added to cart!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (!product) return <p>Product not found.</p>;
 
@@ -39,7 +54,7 @@ const ProductDetail = () => {
       <h2>{product.name}</h2>
       <p>{product.description}</p>
       <p>Price: ${product.price}</p>
-      <button onClick={() => addToCart(product)}>Add to Cart</button>
+      <button onClick={addToCart}>Add to Cart</button>
     </div>
   );
 };
