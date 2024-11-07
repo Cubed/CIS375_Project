@@ -315,7 +315,9 @@ app.post(
       .isArray({ min: 1 })
       .withMessage("At least one tag is required."),
     body("tags.*").isString().withMessage("Each tag must be a string."),
-    body("description").notEmpty().withMessage("Product must contain a description."),
+    body("description")
+      .notEmpty()
+      .withMessage("Product must contain a description."),
     body("imageUrl").isURL().withMessage("A valid image URL is required."),
     // Add more validations as needed
   ],
@@ -451,6 +453,27 @@ app.post(
     }
   }
 );
+
+// Get Cart Total
+app.get("/cart/total", authenticateToken, async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ userId: req.user.id }).populate(
+      "products.productId"
+    );
+    if (!cart) return res.status(404).send("Cart not found.");
+
+    const total = cart.products.reduce((sum, item) => {
+      if (item.productId) {
+        return sum + item.productId.price * item.quantity;
+      }
+      return sum;
+    }, 0);
+    res.send({ total });
+  } catch (error) {
+    console.error("Error calculating cart total:", error);
+    res.status(500).send("Internal server error.");
+  }
+});
 
 // Update product quantity in cart
 app.put(
