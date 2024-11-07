@@ -329,9 +329,14 @@ app.post(
     }
 
     try {
-      const product = new Product(req.body);
+      //Combine user input and hardcoded value rating.
+      const productData = {
+        ...req.body,
+        rating: 0 // Set all products initially to rating 0, meaning not yet rated.
+      }
+      const product = new Product(productData);
       await product.save();
-      res.status(201).send(product);
+      res.status(201).send(productData);
     } catch (error) {
       console.error("Error creating product:", error);
       res.status(500).send("Internal server error.");
