@@ -279,6 +279,26 @@ app.get("/products", async (req, res) => {
   }
 });
 
+// View Specific Product ID information.
+app.get("/products/:productId", async (req, res) => {
+  const { productId } = req.params;
+
+  try {
+    // Find the product by ID
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).send("Product not found.");
+    }
+
+    // Respond with product information
+    res.status(200).send(product);
+  } catch (error) {
+    console.error("Error retrieving product:", error);
+    res.status(500).send("Internal server error.");
+  }
+});
+
 // Product Management (Admin)
 
 // Create a new product (Admin only)
@@ -295,6 +315,7 @@ app.post(
       .isArray({ min: 1 })
       .withMessage("At least one tag is required."),
     body("tags.*").isString().withMessage("Each tag must be a string."),
+    body("description").notEmpty().withMessage("Product must contain a description."),
     body("imageUrl").isURL().withMessage("A valid image URL is required."),
     // Add more validations as needed
   ],
@@ -338,7 +359,10 @@ app.put(
       .optional()
       .isURL()
       .withMessage("A valid image URL is required."),
-    // Add more validations as needed
+    body("description")
+      .optional()
+      .isURL()
+      .withMessage("A valid product description is required."),
   ],
   async (req, res) => {
     // Validate input
