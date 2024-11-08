@@ -1,14 +1,12 @@
 // src/contexts/CartContext.js
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
-import { useAuth } from "./AuthContext";
 
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  const { user } = useAuth();
   const token = localStorage.getItem("token");
   const [cartItems, setCartItems] = useState([]);
 

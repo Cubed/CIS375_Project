@@ -7,7 +7,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
 
           if (response.ok) {
             const userData = await response.json();
-            localStorage.setItem("user", JSON.stringify(userData));
             setUser(userData);
           } else {
             localStorage.removeItem("token");
@@ -46,7 +45,7 @@ export const AuthProvider = ({ children }) => {
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("token", data.token);
-      setUser(data.user);
+      setUser(data.user); // Update state to reflect logged-in user
     }
   };
 
@@ -60,14 +59,13 @@ export const AuthProvider = ({ children }) => {
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("token", data.token);
-      setUser(data.user);
+      setUser(data.user); // Update state to reflect registered user
     }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
+    setUser(null); // Clear the user state to reflect logout
   };
 
   return (
