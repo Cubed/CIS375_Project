@@ -1,8 +1,12 @@
 // src/components/ProductCard.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import "../App.css";
 
 const ProductCard = ({ product }) => {
+  const [averageRating, setAverageRating] = useState(0);
+
   // Function to render stars based on rating
   const renderStars = (rating) => {
     const fullStars = Math.floor(rating);
@@ -30,6 +34,32 @@ const ProductCard = ({ product }) => {
     );
   };
 
+  // Function to fetch reviews and calculate the average rating
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/products/${product._id}/reviews`
+        );
+        const reviews = response.data;
+
+        if (reviews.length > 0) {
+          // Calculate the average rating
+          const totalRating = reviews.reduce(
+            (sum, review) => sum + review.rating,
+            0
+          );
+          const avgRating = totalRating / reviews.length;
+          setAverageRating(avgRating);
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
+
+    fetchReviews();
+  }, [product._id]);
+
   return (
     <div className="product-card">
       <Link to={`/product/${product._id}`}>
@@ -40,7 +70,7 @@ const ProductCard = ({ product }) => {
         />
         <h3 className="product-name">{product.name}</h3>
       </Link>
-      <div className="product-rating">{renderStars(product.rating || 0)}</div>
+      <div className="product-rating">{renderStars(averageRating)}</div>
     </div>
   );
 };
