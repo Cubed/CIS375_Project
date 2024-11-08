@@ -561,27 +561,6 @@ app.delete("/cart/:productId", authenticateToken, async (req, res) => {
   }
 });
 
-// Get Cart Total
-app.get("/cart/total", authenticateToken, async (req, res) => {
-  try {
-    const cart = await Cart.findOne({ userId: req.user.id }).populate(
-      "products.productId"
-    );
-    if (!cart) return res.status(404).send("Cart not found.");
-
-    const total = cart.products.reduce((sum, item) => {
-      if (item.productId) {
-        return sum + item.productId.price * item.quantity;
-      }
-      return sum;
-    }, 0);
-    res.send({ total });
-  } catch (error) {
-    console.error("Error calculating cart total:", error);
-    res.status(500).send("Internal server error.");
-  }
-});
-
 // Product Search & Filters
 app.get("/products/search", async (req, res) => {
   const { keyword, category, minPrice, maxPrice } = req.query;
@@ -720,8 +699,6 @@ app.post("/account/logout", authenticateToken, (req, res) => {
   // Since JWTs are stateless, logout can be handled client-side by deleting the token
   res.send("Logged out successfully.");
 });
-
-// src/server.js or wherever your server code is defined
 
 // Endpoint to get the currently authenticated user's data
 app.get("/account/me", authenticateToken, async (req, res) => {
