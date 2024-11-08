@@ -5,49 +5,87 @@ import axios from "axios";
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchCart = async () => {
-      try {
-        // Step 1: Fetch cart data from /cart endpoint
-        const cartResponse = await axios.get("http://localhost:3001/cart", {
-          headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmMyMjMwMDg3OGI3YjJhYzJmYTZkZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTczMTAzNzA3NSwiZXhwIjoxNzMxMDQwNjc1fQ.8GOqtaCTWWMeAFY5p72EiAy0DQQCPOd4Fer7P6twerY`, // Replace with actual token
-          },
-        });
+      if (token) {
+        // User is logged in, fetch cart from server
+        try {
+          const cartResponse = await axios.get("http://localhost:3001/cart", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const cartData = cartResponse.data;
 
-        const cartData = cartResponse.data;
+          // Fetch product details for each product ID in the cart
+          const detailedCartItems = await Promise.all(
+            cartData.map(async (item) => {
+              try {
+                const productResponse = await axios.get(
+                  `http://localhost:3001/products/${item.productId}`
+                );
+                return {
+                  ...item,
+                  productDetails: productResponse.data,
+                };
+              } catch (error) {
+                console.error(
+                  `Error fetching product ${item.productId}:`,
+                  error
+                );
+                return item; // Return item without additional details in case of an error
+              }
+            })
+          );
 
-        // Step 2: Fetch product details for each product ID in the cart
-        const detailedCartItems = await Promise.all(
-          cartData.map(async (item) => {
-            try {
-              const productResponse = await axios.get(
-                `http://localhost:3001/products/${item.productId}`
-              );
-
-              return {
-                ...item,
-                productDetails: productResponse.data,
-              };
-            } catch (error) {
-              console.error(`Error fetching product ${item.productId}:`, error);
-              return item; // Return item without additional details in case of an error
-            }
-          })
-        );
-
-        // Step 3: Update the cartItems state with detailed product information
-        setCartItems(detailedCartItems);
-      } catch (error) {
-        console.error("Error fetching cart:", error);
-      } finally {
-        setLoading(false);
+          setCartItems(detailedCartItems);
+        } catch (error) {
+          console.error("Error fetching cart from server:", error);
+        }
+      } else {
+        // User is not logged in, load cart from local storage
+        const savedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
+        setCartItems(savedCart);
       }
+      setLoading(false);
     };
 
     fetchCart();
-  }, []);
+  }, [token]);
+
+  useEffect(() => {
+    // Save cart items to local storage if the user is not logged in
+    if (!token) {
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    }
+  }, [cartItems, token]);
+
+  const addItemToCart = (product) => {
+    const updatedCart = [...cartItems];
+    const existingItem = updatedCart.find(
+      (item) => item.productId === product.productId
+    );
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      updatedCart.push({ ...product, quantity: 1 });
+    }
+    setCartItems(updatedCart);
+
+    // Sync with server if user is logged in
+    if (token) {
+      axios
+        .post(
+          "http://localhost:3001/cart",
+          { productId: product.productId, quantity: 1 },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .catch((error) => console.error("Error updating server cart:", error));
+    }
+  };
 
   if (loading) return <p>Loading cart...</p>;
 
@@ -86,6 +124,9 @@ const CartPage = () => {
           </div>
         </div>
       ))}
+      <button onClick={() => addItemToCart(cartItems[0])}>
+        Add More of First Item
+      </button>
     </div>
   );
 };
