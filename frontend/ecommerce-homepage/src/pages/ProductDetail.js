@@ -31,7 +31,7 @@ const ProductDetail = () => {
         { productId: product._id, quantity: 1 },
         {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmMyMjMwMDg3OGI3YjJhYzJmYTZkZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTczMDk1NDk5MywiZXhwIjoxNzMwOTU4NTkzfQ.U36cEaRd--1E0En0tbaOmvmh1f9O20gdS1JNp9mIV_A`, // Replace with actual token
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmMyMjMwMDg3OGI3YjJhYzJmYTZkZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTczMTAzMTM3NywiZXhwIjoxNzMxMDM0OTc3fQ.h1p4VxCzOBJRCNu7Ozm5ztW1xnst70c3qJ7yxMStdEU`, // Replace with actual token
           },
         }
       );

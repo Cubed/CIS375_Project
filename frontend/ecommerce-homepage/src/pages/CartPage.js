@@ -1,4 +1,3 @@
-// src/pages/CartPage.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -11,12 +10,15 @@ const CartPage = () => {
       try {
         const response = await axios.get("http://localhost:3001/cart", {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmMyMjMwMDg3OGI3YjJhYzJmYTZkZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTczMDk1NDk5MywiZXhwIjoxNzMwOTU4NTkzfQ.U36cEaRd--1E0En0tbaOmvmh1f9O20gdS1JNp9mIV_A`, // Replace with actual token
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmMyMjMwMDg3OGI3YjJhYzJmYTZkZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTczMTAzMTM3NywiZXhwIjoxNzMxMDM0OTc3fQ.h1p4VxCzOBJRCNu7Ozm5ztW1xnst70c3qJ7yxMStdEU`,
           },
         });
         setCart(response.data);
       } catch (error) {
-        console.error("Error fetching cart:", error);
+        console.error(
+          "Error fetching cart:",
+          error.response ? error.response.data : error.message
+        );
       } finally {
         setLoading(false);
       }
@@ -34,8 +36,8 @@ const CartPage = () => {
   return (
     <div>
       <h1>Your Cart</h1>
-      {cart.map((item) => (
-        <div key={item.productId._id}>
+      {cart.map((item, index) => (
+        <div key={item.productId._id || index}>
           <p>Product Name: {item.productId.name}</p>
           <p>Quantity: {item.quantity}</p>
           <p>Price: ${item.productId.price}</p>
