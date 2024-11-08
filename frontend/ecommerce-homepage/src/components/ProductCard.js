@@ -71,6 +71,19 @@ const ProductCard = ({ product }) => {
         <h3 className="product-name">{product.name}</h3>
       </Link>
       <div className="product-rating">{renderStars(averageRating)}</div>
+
+      {/* Render tags if available */}
+      <div className="product-tags">
+        {product.tags && product.tags.length > 0 ? (
+          product.tags.map((tag, index) => (
+            <span key={index} className="tag">
+              {tag}
+            </span>
+          ))
+        ) : (
+          <span className="no-tags">No Tags</span>
+        )}
+      </div>
     </div>
   );
 };
