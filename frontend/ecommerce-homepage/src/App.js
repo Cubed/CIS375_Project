@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import ProductDetail from "./pages/ProductDetail";
-import Navbar from "./components/Navbar";
+import Header from "./components/Header";
 import CartPage from "./pages/CartPage"; // Import the CartPage component
 import { CartProvider } from "./contexts/CartContext";
 
@@ -10,7 +10,7 @@ function App() {
   return (
     <CartProvider>
       <Router>
-        <Navbar />
+        <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
