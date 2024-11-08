@@ -332,8 +332,8 @@ app.post(
       //Combine user input and hardcoded value rating.
       const productData = {
         ...req.body,
-        rating: 0 // Set all products initially to rating 0, meaning not yet rated.
-      }
+        rating: 0, // Set all products initially to rating 0, meaning not yet rated.
+      };
       const product = new Product(productData);
       await product.save();
       res.status(201).send(productData);
@@ -413,7 +413,9 @@ app.delete(
 //Get items from cart
 app.get("/cart", authenticateToken, async (req, res) => {
   try {
-    let cart = await Cart.findOne({ userId: req.user.id }).populate('products.productId');
+    let cart = await Cart.findOne({ userId: req.user.id }).populate(
+      "products.productId"
+    );
 
     if (!cart) {
       return res.status(404).send("Cart not found.");
@@ -717,6 +719,22 @@ app.post(
 app.post("/account/logout", authenticateToken, (req, res) => {
   // Since JWTs are stateless, logout can be handled client-side by deleting the token
   res.send("Logged out successfully.");
+});
+
+// src/server.js or wherever your server code is defined
+
+// Endpoint to get the currently authenticated user's data
+app.get("/account/me", authenticateToken, async (req, res) => {
+  try {
+    // Assuming `req.user` is set by the `authenticateToken` middleware
+    const user = await User.findById(req.user.id).select("-password"); // Exclude password from the response
+    if (!user) return res.status(404).send("User not found.");
+
+    res.status(200).send(user);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).send("Internal server error.");
+  }
 });
 
 // Update Account Information

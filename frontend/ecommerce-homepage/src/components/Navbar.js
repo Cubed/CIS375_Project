@@ -5,7 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const { cartItemCount } = useCart();
 
   return (
@@ -15,7 +15,9 @@ const Navbar = () => {
           E-Commerce
         </Link>
         <div className="nav-links">
-          {user ? (
+          {loading ? (
+            <span>Loading...</span>
+          ) : user ? (
             <>
               <span className="nav-welcome">Welcome, {user.username}</span>
               <button onClick={logout} className="nav-button">
