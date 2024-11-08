@@ -7,6 +7,7 @@ const ProductDetail = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -25,19 +26,41 @@ const ProductDetail = () => {
   }, [productId]);
 
   const addToCart = async () => {
-    try {
-      await axios.post(
-        "http://localhost:3001/cart",
-        { productId: product._id, quantity: 1 },
-        {
-          headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmMyMjMwMDg3OGI3YjJhYzJmYTZkZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTczMTAzNzA3NSwiZXhwIjoxNzMxMDQwNjc1fQ.8GOqtaCTWWMeAFY5p72EiAy0DQQCPOd4Fer7P6twerY`, // Replace with actual token
-          },
-        }
+    if (token) {
+      // User is logged in, add item to the cart on the server
+      try {
+        await axios.post(
+          "http://localhost:3001/cart",
+          { productId: product._id, quantity: 1 },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        alert("Added to cart!");
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+      }
+    } else {
+      // User is not logged in, add item to the cart in local storage
+      const savedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
+      const existingItem = savedCart.find(
+        (item) => item.productId === product._id
       );
+
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        savedCart.push({
+          productId: product._id,
+          quantity: 1,
+          productDetails: product,
+        });
+      }
+
+      localStorage.setItem("cartItems", JSON.stringify(savedCart));
       alert("Added to cart!");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
     }
   };
 
