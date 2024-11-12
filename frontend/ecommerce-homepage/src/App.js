@@ -1,7 +1,7 @@
 // src/App.js
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Import React Query client
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import HomePage from "./pages/HomePage";
 import ProductDetail from "./pages/ProductDetail";
 import Navbar from "./components/Navbar";
@@ -12,16 +12,16 @@ import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProductProvider } from "./contexts/ProductContext"; // Import ProductProvider
 
-const queryClient = new QueryClient(); // Initialize a Query Client
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <QueryClientProvider client={queryClient}>
-          <ProductProvider>
-            {" "}
-            {/* Wrap in ProductProvider */}
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ProductProvider>
+          {" "}
+          {/* Wrap ProductProvider above CartProvider */}
+          <CartProvider>
             <Router>
               <Navbar />
               <Routes>
@@ -32,10 +32,10 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
               </Routes>
             </Router>
-          </ProductProvider>
-        </QueryClientProvider>
-      </CartProvider>
-    </AuthProvider>
+          </CartProvider>
+        </ProductProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
