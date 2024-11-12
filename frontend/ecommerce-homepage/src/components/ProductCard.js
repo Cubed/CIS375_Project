@@ -1,32 +1,12 @@
 // src/components/ProductCard.js
 import React from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import "../App.css";
+import { useProduct } from "../contexts/ProductContext"; // Import the Product context
 
 const ProductCard = ({ product }) => {
-  // Function to fetch reviews and calculate the average rating
-  const fetchReviews = async () => {
-    const response = await axios.get(
-      `http://localhost:3001/products/${product._id}/reviews`
-    );
-    const reviews = response.data;
-    if (reviews.length > 0) {
-      const totalRating = reviews.reduce(
-        (sum, review) => sum + review.rating,
-        0
-      );
-      return totalRating / reviews.length;
-    }
-    return 0;
-  };
-
-  // Use React Query to fetch reviews
-  const { data: averageRating = 0, error } = useQuery({
-    queryKey: ["reviews", product._id],
-    queryFn: fetchReviews,
-  });
+  const { useProductReviews } = useProduct(); // Get the custom hook from ProductContext
+  const { data: averageRating = 0, error } = useProductReviews(product._id); // Fetch the average rating using React Query
 
   // Function to render stars based on rating
   const renderStars = (rating) => {

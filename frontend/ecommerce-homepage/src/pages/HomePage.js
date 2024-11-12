@@ -1,33 +1,15 @@
+// src/pages/HomePage.js
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import "../App.css";
-
-// Function to fetch products
-const fetchProducts = async () => {
-  const response = await axios.get("http://localhost:3001/products");
-  return response.data.products;
-};
+import { useProduct } from "../contexts/ProductContext"; // Import ProductContext
 
 const HomePage = () => {
-  // Use React Query to fetch data with caching
-  const {
-    data: products,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
-  });
+  const { useProducts } = useProduct(); // Get the hook from ProductContext
+  const { data: products = [], isLoading, error } = useProducts(); // Provide a default empty array for products
 
   if (isLoading) return <p>Loading products...</p>;
-  if (error)
-    return (
-      <p className="error-message">
-        Failed to load products. Please try again later.
-      </p>
-    );
+  if (error) return <p className="error-message">Error loading products</p>;
 
   return (
     <div className="homepage">
