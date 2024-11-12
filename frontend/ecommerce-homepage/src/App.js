@@ -16,9 +16,9 @@ const queryClient = new QueryClient(); // Initialize a Query Client
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <QueryClientProvider client={queryClient}>
           <ProductProvider>
             <Router>
               <Navbar />
@@ -31,9 +31,9 @@ function App() {
               </Routes>
             </Router>
           </ProductProvider>
-        </CartProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+        </QueryClientProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 
