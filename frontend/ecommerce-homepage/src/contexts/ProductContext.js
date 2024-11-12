@@ -21,25 +21,28 @@ const fetchProduct = async (productId) => {
   return response.data;
 };
 
-// Fetch all reviews for a product by product ID along with average rating
+// Fetch and cache product reviews by product ID
 const fetchReviews = async (productId) => {
   const response = await axios.get(
     `http://localhost:3001/products/${productId}/reviews`
   );
-  return response.data; // Contains { reviews, averageRating }
+  const reviews = response.data;
+  if (reviews.length > 0) {
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return totalRating / reviews.length;
+  }
+  return 0;
 };
 
 export const ProductProvider = ({ children }) => {
   const useProducts = () =>
     useQuery({ queryKey: ["products"], queryFn: fetchProducts });
-
   const useProductDetail = (productId) =>
     useQuery({
       queryKey: ["product", productId],
       queryFn: () => fetchProduct(productId),
       enabled: !!productId,
     });
-
   const useProductReviews = (productId) =>
     useQuery({
       queryKey: ["reviews", productId],
