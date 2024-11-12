@@ -1,38 +1,28 @@
-// src/components/ProductCard.js
 import React from "react";
 import { Link } from "react-router-dom";
 import "../App.css";
-import { useProduct } from "../contexts/ProductContext"; // Import the Product context
+import { useProduct } from "../contexts/ProductContext";
 
 const ProductCard = ({ product }) => {
-  const { useProductReviews } = useProduct(); // Get the custom hook from ProductContext
-  const { data: averageRating = 0, error } = useProductReviews(product._id); // Fetch the average rating using React Query
+  const { useProductReviews } = useProduct();
+  const { data: reviewsData, error } = useProductReviews(product._id);
+
+  const averageRating = reviewsData?.averageRating || 0;
 
   // Function to render stars based on rating
   const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
-    const emptyStars = 5 - fullStars - halfStar;
+    const stars = Array(5).fill("☆"); // Initialize an array with five empty stars
 
-    return (
-      <>
-        {Array(fullStars)
-          .fill("★")
-          .map((star, index) => (
-            <span key={`full-${index}`} className="star full">
-              {star}
-            </span>
-          ))}
-        {halfStar === 1 && <span className="star half">★</span>}
-        {Array(emptyStars)
-          .fill("☆")
-          .map((star, index) => (
-            <span key={`empty-${index}`} className="star empty">
-              {star}
-            </span>
-          ))}
-      </>
-    );
+    // Fill the array with full stars based on the rating
+    for (let i = 0; i < Math.floor(rating); i++) {
+      stars[i] = "★";
+    }
+
+    return stars.map((star, index) => (
+      <span key={index} className={`star ${star === "★" ? "full" : "empty"}`}>
+        {star}
+      </span>
+    ));
   };
 
   return (
@@ -48,7 +38,6 @@ const ProductCard = ({ product }) => {
       <div className="product-rating">
         {error ? <span>Error loading rating</span> : renderStars(averageRating)}
       </div>
-
       {/* Render tags if available */}
       <div className="product-tags">
         {product.tags && product.tags.length > 0 ? (
