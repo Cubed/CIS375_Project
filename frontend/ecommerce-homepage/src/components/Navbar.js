@@ -5,8 +5,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 
 const Navbar = () => {
-  const { user, logout, loading } = useAuth();
-  const { cartItemCount } = useCart();
+  const { user, logout, loading } = useAuth(); // User authentication context
+  const { cartItemCount } = useCart(); // Cart context
 
   return (
     <header className="navbar">
@@ -16,7 +16,7 @@ const Navbar = () => {
         </Link>
         <div className="nav-links">
           {loading ? (
-            <span>Loading...</span>
+            <span>Loading...</span> // Show loading state when fetching user data
           ) : user ? (
             <>
               <span className="nav-welcome">Welcome, {user.username}</span>
