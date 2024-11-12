@@ -1,130 +1,66 @@
 // src/pages/CartPage.js
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useQueries } from "@tanstack/react-query";
 import axios from "axios";
+import { useCart } from "../contexts/CartContext";
+
+const fetchProductDetails = async (productId) => {
+  const response = await axios.get(
+    `http://localhost:3001/products/${productId}`
+  );
+  return response.data;
+};
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("token");
+  const { cartItems, addItemToCart, isLoading, error } = useCart();
 
-  useEffect(() => {
-    const fetchCart = async () => {
-      if (token) {
-        // User is logged in, fetch cart from server
-        try {
-          const cartResponse = await axios.get("http://localhost:3001/cart", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          const cartData = cartResponse.data;
+  // Use `useQueries` to fetch details for each product in the cart
+  const productQueries = useQueries({
+    queries: cartItems.map((item) => ({
+      queryKey: ["product", item.productId],
+      queryFn: () => fetchProductDetails(item.productId),
+      enabled: !!item.productId, // Ensure the query only runs if productId exists
+    })),
+  });
 
-          // Fetch product details for each product ID in the cart
-          const detailedCartItems = await Promise.all(
-            cartData.map(async (item) => {
-              try {
-                const productResponse = await axios.get(
-                  `http://localhost:3001/products/${item.productId}`
-                );
-                return {
-                  ...item,
-                  productDetails: productResponse.data,
-                };
-              } catch (error) {
-                console.error(
-                  `Error fetching product ${item.productId}:`,
-                  error
-                );
-                return item; // Return item without additional details in case of an error
-              }
-            })
-          );
-
-          setCartItems(detailedCartItems);
-        } catch (error) {
-          console.error("Error fetching cart from server:", error);
-        }
-      } else {
-        // User is not logged in, load cart from local storage
-        const savedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
-        setCartItems(savedCart);
-      }
-      setLoading(false);
-    };
-
-    fetchCart();
-  }, [token]);
-
-  useEffect(() => {
-    // Save cart items to local storage if the user is not logged in
-    if (!token) {
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    }
-  }, [cartItems, token]);
-
-  const addItemToCart = (product) => {
-    const updatedCart = [...cartItems];
-    const existingItem = updatedCart.find(
-      (item) => item.productId === product.productId
-    );
-
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      updatedCart.push({ ...product, quantity: 1 });
-    }
-    setCartItems(updatedCart);
-
-    // Sync with server if user is logged in
-    if (token) {
-      axios
-        .post(
-          "http://localhost:3001/cart",
-          { productId: product.productId, quantity: 1 },
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-        .catch((error) => console.error("Error updating server cart:", error));
-    }
-  };
-
-  if (loading) return <p>Loading cart...</p>;
-
-  if (!cartItems || cartItems.length === 0) {
-    return <p>No items in the cart.</p>;
-  }
+  if (isLoading) return <p>Loading cart...</p>;
+  if (error) return <p>Error loading cart.</p>;
 
   return (
     <div>
       <h1>Your Cart</h1>
-      {cartItems.map((item) => (
-        <div
-          key={item.productId}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "10px",
-          }}
-        >
-          {/* Display the product image */}
-          <img
-            src={item.productDetails?.imageUrl || "placeholder.jpg"} // Use a placeholder if imageUrl is not available
-            alt={item.productDetails?.name || "Product Image"}
+      {cartItems.map((item, index) => {
+        const productData = productQueries[index]?.data;
+        return (
+          <div
+            key={item.productId}
             style={{
-              width: "50px",
-              height: "50px",
-              marginRight: "10px",
-              objectFit: "cover",
-              borderRadius: "5px",
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
             }}
-          />
-          <div>
-            <p>Product Name: {item.productDetails?.name || "N/A"}</p>
-            <p>Quantity: {item.quantity}</p>
-            <p>Price: ${item.productDetails?.price || "N/A"}</p>
+          >
+            {/* Display the product image */}
+            <img
+              src={productData?.imageUrl || "placeholder.jpg"}
+              alt={productData?.name || "Product Image"}
+              style={{
+                width: "50px",
+                height: "50px",
+                marginRight: "10px",
+                objectFit: "cover",
+                borderRadius: "5px",
+              }}
+            />
+            <div>
+              <p>Product Name: {productData?.name || "N/A"}</p>
+              <p>Quantity: {item.quantity}</p>
+              <p>Price: ${productData?.price || "N/A"}</p>
+            </div>
           </div>
-        </div>
-      ))}
-      <button onClick={() => addItemToCart(cartItems[0])}>
+        );
+      })}
+      <button onClick={() => addItemToCart.mutate(cartItems[0])}>
         Add More of First Item
       </button>
     </div>

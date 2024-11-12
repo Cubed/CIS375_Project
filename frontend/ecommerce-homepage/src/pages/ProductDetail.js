@@ -1,29 +1,14 @@
 // src/pages/ProductDetail.js
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
+import { useProduct } from "../contexts/ProductContext";
 import axios from "axios";
 
 const ProductDetail = () => {
   const { productId } = useParams();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { useProductDetail } = useProduct(); // Get the hook from ProductContext
+  const { data: product, isLoading, error } = useProductDetail(productId);
   const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/products/${productId}`
-        );
-        setProduct(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching product details:", error);
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, [productId]);
 
   const addToCart = async () => {
     if (token) {
@@ -64,7 +49,8 @@ const ProductDetail = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error loading product details.</p>;
   if (!product) return <p>Product not found.</p>;
 
   return (

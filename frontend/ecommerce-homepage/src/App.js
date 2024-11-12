@@ -16,12 +16,10 @@ const queryClient = new QueryClient(); // Initialize a Query Client
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CartProvider>
           <ProductProvider>
-            {" "}
-            {/* Wrap in ProductProvider */}
             <Router>
               <Navbar />
               <Routes>
@@ -33,9 +31,9 @@ function App() {
               </Routes>
             </Router>
           </ProductProvider>
-        </QueryClientProvider>
-      </CartProvider>
-    </AuthProvider>
+        </CartProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
