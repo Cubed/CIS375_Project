@@ -886,14 +886,18 @@ app.post(
   }
 );
 
-// Get all reviews for a product
+// Get all reviews for a product along with the average rating
 app.get("/products/:id/reviews", async (req, res) => {
   try {
     const reviews = await Review.find({ productId: req.params.id }).populate(
       "userId",
       "username"
     );
-    res.send(reviews);
+
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+
+    res.send({ reviews, averageRating });
   } catch (error) {
     console.error("Error fetching reviews:", error);
     res.status(500).send("Internal server error.");
