@@ -128,11 +128,15 @@
   background-color: #2c3e50;
   color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  flex-wrap: wrap; /* Allows wrapping in smaller screens */
 }
 
 .nav-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
 .nav-logo {
@@ -141,6 +145,7 @@
   text-decoration: none;
   font-weight: bold;
   transition: color 0.3s ease;
+  flex: 1; /* Allows the logo to take space */
 }
 
 .nav-logo:hover {
@@ -149,7 +154,17 @@
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 15px;
+  flex: 1; /* Allows flex space for better centering */
+  justify-content: flex-end; /* Aligns links to the right */
+  white-space: nowrap;
+}
+
+.nav-welcome {
+  color: #ecf0f1;
+  font-size: 1em;
+  margin-right: 15px;
 }
 
 .nav-button {
@@ -199,8 +214,24 @@
 
 /* Responsive styling for smaller screens */
 @media (max-width: 768px) {
+  .navbar {
+    padding: 10px;
+    flex-direction: column; /* Stack items vertically */
+  }
+
+  .nav-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
   .nav-links {
     gap: 8px;
+    flex-direction: column; /* Stack links vertically */
+    align-items: center;
+  }
+
+  .nav-welcome {
+    margin-right: 0; /* Center-align welcome message */
   }
 
   .nav-button {
