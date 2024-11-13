@@ -31,7 +31,7 @@ const fetchReviews = async (productId) => {
 
 export const ProductProvider = ({ children }) => {
   const useProducts = () =>
-    useQuery({ queryKey: ["products"], queryFn: fetchProducts });
+    useQuery({ queryKey: ["products"], queryFn: fetchProducts, staleTime: 1000 * 60 * 5 });
 
   const useProductDetail = (productId) =>
     useQuery({
@@ -45,6 +45,7 @@ export const ProductProvider = ({ children }) => {
       queryKey: ["reviews", productId],
       queryFn: () => fetchReviews(productId),
       enabled: !!productId,
+      staleTime: 1000 * 60 * 5
     });
 
   return (
