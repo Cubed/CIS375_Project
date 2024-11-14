@@ -3,13 +3,16 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const CheckoutPage = () => {
-  const { cartTotal, clearCart } = useCart();
+  const { cartItems, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [address, setAddress] = useState(user?.shippingInfo?.address || "");
+  const [city, setCity] = useState(user?.shippingInfo?.city || "");
+  const [state, setState] = useState(user?.shippingInfo?.state || "");
   const [zipCode, setZipCode] = useState(user?.shippingInfo?.zipcode || "");
   const [cardNumber, setCardNumber] = useState(
     user?.savedPaymentInfo?.cardNumber || ""
@@ -36,10 +39,12 @@ const CheckoutPage = () => {
     setDeliveryDate(generateRandomDeliveryDate());
   }, []);
 
-  const handleConfirmPurchase = () => {
+  const handleConfirmPurchase = async () => {
     if (
       !user &&
       (!address ||
+        !city ||
+        !state ||
         !zipCode ||
         !cardNumber ||
         !cardHolderName ||
@@ -50,22 +55,43 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Simulate successful purchase
-    alert(
-      `Purchase confirmed! Your order will be delivered on ${deliveryDate}.`
-    );
+    try {
+      if (user) {
+        // Authenticated user purchase for each item in the cart
+        const token = localStorage.getItem("token");
 
-    // Clear the cart after successful purchase
-    clearCart();
+        for (const item of cartItems) {
+          await axios.post(
+            `http://localhost:3001/purchase/${item.productId}`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        }
+      }
 
-    // Redirect to the homepage after purchase
-    navigate("/");
+      // Simulate successful purchase
+      alert(
+        `Purchase confirmed! Your order will be delivered on ${deliveryDate}.`
+      );
+
+      // Clear the cart after successful purchase
+      clearCart();
+
+      // Redirect to the homepage after purchase
+      navigate("/");
+    } catch (error) {
+      console.error("Error confirming purchase:", error);
+      alert("There was an error processing your purchase. Please try again.");
+    }
   };
 
   return (
     <div>
       <h1>Checkout</h1>
-      <p>Total: ${Number(cartTotal).toFixed(2)}</p>
 
       <h2>Shipping Information</h2>
       {!user ? (
@@ -79,6 +105,20 @@ const CheckoutPage = () => {
           />
           <input
             type="text"
+            placeholder="City"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            placeholder="State"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            required
+          />
+          <input
+            type="text"
             placeholder="Zip Code"
             value={zipCode}
             onChange={(e) => setZipCode(e.target.value)}
@@ -88,6 +128,8 @@ const CheckoutPage = () => {
       ) : (
         <>
           <p>Address: {user.shippingInfo.address || "1234 Example St"}</p>
+          <p>City: {user.shippingInfo.city || "Sample City"}</p>
+          <p>State: {user.shippingInfo.state || "Sample State"}</p>
           <p>Zip Code: {user.shippingInfo.zipcode || "00000"}</p>
         </>
       )}
