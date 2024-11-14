@@ -1,13 +1,132 @@
-/* src/ProductDetail.css */
-
+/* General container styling */
 .product-detail {
-  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #333;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Product image */
 .product-detail-image {
-  max-width: 400px;
   width: 100%;
+  max-width: 400px;
   height: auto;
+  border-radius: 8px;
   margin-bottom: 20px;
+  display: block;
+}
+
+/* Product title and price */
+.product-detail h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.product-detail p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+/* Add to Cart button */
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #45A049;
+}
+
+/* Reviews section */
+.reviews-section {
+  margin-top: 30px;
+}
+
+.reviews-section h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.reviews-section p {
+  font-size: 1rem;
+  color: #777;
+}
+
+.review-item {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.review-item p {
+  margin: 5px 0;
+}
+
+.review-item strong {
+  color: #333;
+}
+
+/* Review form */
+.review-form {
+  margin-top: 20px;
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.review-form h4 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.review-form textarea,
+.review-form input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.review-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.review-form button {
+  background-color: #007BFF;
+  color: white;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.review-form button:hover {
+  background-color: #0069D9;
+}
+
+.review-form p {
+  margin-top: 10px;
+  color: #d9534f;
+  font-size: 0.9rem;
 }
