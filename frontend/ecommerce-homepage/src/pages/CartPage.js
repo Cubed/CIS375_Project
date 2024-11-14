@@ -15,56 +15,10 @@ const CartPage = () => {
   const [expiryDate, setExpiryDate] = useState("");
   const [cvv, setCvv] = useState("");
 
-<<<<<<< HEAD
   const generateDeliveryDate = () => {
     const deliveryDate = new Date();
     deliveryDate.setDate(
       deliveryDate.getDate() + Math.floor(Math.random() * 3) + 3
-=======
-          // Fetch product details for each product ID in the cart
-          const detailedCartItems = await Promise.all(
-            cartData.map(async (item) => {
-              try {
-                const productResponse = await axios.get(
-                  `http://localhost:3001/products/${item.productId}` // Fixed syntax with backticks
-                );
-                return {
-                  ...item,
-                  productDetails: productResponse.data,
-                };
-              } catch (error) {
-                console.error(
-                  `Error fetching product ${item.productId}:`,
-                  error
-                ); // Fixed syntax with backticks
-                return item; // Return item without additional details in case of an error
-              }
-            })
-          );
-
-          setCartItems(detailedCartItems);
-        } catch (error) {
-          console.error("Error fetching cart from server:", error);
-        }
-      } else {
-        // User is not logged in, load cart from local storage
-        const savedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
-        setCartItems(savedCart);
-      }
-      setLoading(false);
-    };
-
-    fetchCart();
-  }, [token]);
-
-  useEffect(() => {
-  }, [cartItems, token]);
-
-  const addItemToCart = (product) => {
-    const updatedCart = [...cartItems];
-    const existingItem = updatedCart.find(
-      (item) => item.productId === product.productId
->>>>>>> origin/cubed
     );
     return deliveryDate.toDateString();
   };
