@@ -11,14 +11,15 @@ import RegisterPage from "./pages/RegisterPage";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProductProvider } from "./contexts/ProductContext"; // Import ProductProvider
+import CheckoutPage from "./components/CheckoutPage";
 
 const queryClient = new QueryClient(); // Initialize a Query Client
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CartProvider>
           <ProductProvider>
             <Router>
               <Navbar />
@@ -26,14 +27,15 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/product/:productId" element={<ProductDetail />} />
                 <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
               </Routes>
             </Router>
           </ProductProvider>
-        </QueryClientProvider>
-      </CartProvider>
-    </AuthProvider>
+        </CartProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

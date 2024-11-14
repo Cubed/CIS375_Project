@@ -597,6 +597,27 @@ app.get("/products/search", async (req, res) => {
   }
 });
 
+// Clear all items in the cart
+app.delete("/cart_all/delete", authenticateToken, async (req, res) => {
+  try {
+    // Find the user's cart
+    const cart = await Cart.findOne({ userId: req.user.id });
+
+    if (!cart) {
+      return res.status(404).send("Cart not found.");
+    }
+
+    // Clear all products from the cart
+    cart.products = [];
+    await cart.save();
+
+    res.status(200).send("Cart has been cleared.");
+  } catch (error) {
+    console.error("Error clearing cart:", error);
+    res.status(500).send("Internal server error.");
+  }
+});
+
 // Account System
 
 // Register a new user

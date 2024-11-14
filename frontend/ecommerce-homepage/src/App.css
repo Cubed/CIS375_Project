@@ -173,11 +173,15 @@ body {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  flex-wrap: wrap; /* Allows wrapping in smaller screens */
 }
 
 .nav-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
 .nav-logo {
@@ -186,6 +190,7 @@ body {
   text-decoration: none;
   font-weight: bold;
   transition: color 0.3s ease;
+  flex: 1; /* Allows the logo to take space */
 }
 
 .nav-logo:hover {
@@ -216,7 +221,17 @@ body {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 15px;
+  flex: 1; /* Allows flex space for better centering */
+  justify-content: flex-end; /* Aligns links to the right */
+  white-space: nowrap;
+}
+
+.nav-welcome {
+  color: #ecf0f1;
+  font-size: 1em;
+  margin-right: 15px;
 }
 
 .nav-button {
@@ -259,9 +274,15 @@ body {
   background-color: #e74c3c;
   color: white;
   border-radius: 50%;
-  padding: 4px 8px;
-  font-size: 0.75em;
+  padding: 0; /* Remove padding for a compact structure */
+  font-size: 0.5em;
   font-weight: bold;
+  width: 20px; /* Set explicit width and height for a small, circular shape */
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .tag-options button,
@@ -285,17 +306,28 @@ body {
 
 /* Responsive styling */
 @media (max-width: 768px) {
+  .navbar {
+    padding: 10px;
+    flex-direction: column; /* Stack items vertically */
+  }
+
+  .nav-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
   .nav-links {
     gap: 8px;
+    flex-direction: column; /* Stack links vertically */
+    align-items: center;
+  }
+
+  .nav-welcome {
+    margin-right: 0; /* Center-align welcome message */
   }
 
   .nav-button {
     font-size: 0.9em;
     padding: 6px 10px;
-  }
-
-  .cart-count {
-    top: -4px;
-    right: -8px;
   }
 }

@@ -39,23 +39,37 @@ export const AuthProvider = ({ children }) => {
     fetchUserProfile();
   }, []);
 
-  // Login function
+  // Login function with detailed response
   const login = async (email, password) => {
     setLoading(true); // Set loading to true to trigger re-renders if needed
-    const response = await fetch("http://localhost:3001/account/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch("http://localhost:3001/account/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("token", data.token);
 
-      // Fetch the profile after setting the token
-      await fetchUserProfile();
-    } else {
-      console.error("Login failed");
+        // Fetch the profile after setting the token
+        await fetchUserProfile();
+        return { success: true }; // Return success status
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          message: errorData.message || "Login failed.",
+        };
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      return {
+        success: false,
+        message: "Password or Email incorrect try again",
+      };
+    } finally {
       setLoading(false); // Reset loading in case of error
     }
   };
@@ -63,20 +77,31 @@ export const AuthProvider = ({ children }) => {
   // Registration function
   const register = async (userData) => {
     setLoading(true);
-    const response = await fetch("http://localhost:3001/account/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    });
+    try {
+      const response = await fetch("http://localhost:3001/account/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("token", data.token);
 
-      // Fetch the profile after setting the token
-      await fetchUserProfile();
-    } else {
-      console.error("Registration failed");
+        // Fetch the profile after setting the token
+        await fetchUserProfile();
+        return { success: true };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          message: errorData.message || "Registration failed.",
+        };
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      return { success: false, message: "An unexpected error occurred." };
+    } finally {
       setLoading(false);
     }
   };
