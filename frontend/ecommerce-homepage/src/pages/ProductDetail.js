@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useProduct } from "../contexts/ProductContext";
+import { useCart } from "../contexts/CartContext";
 import axios from "axios";
 
 const ProductDetail = () => {
@@ -21,41 +22,12 @@ const ProductDetail = () => {
   const [reviewComment, setReviewComment] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewError, setReviewError] = useState(null);
-  const addToCart = async () => {
-    if (token) {
-      try {
-        await axios.post(
-          "http://localhost:3001/cart",
-          { productId: product._id, quantity: 1 },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        alert("Added to cart!");
-      } catch (error) {
-        console.error("Error adding to cart:", error);
-      }
-    } else {
-      const savedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
-      const existingItem = savedCart.find(
-        (item) => item.productId === product._id
-      );
 
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        savedCart.push({
-          productId: product._id,
-          quantity: 1,
-          productDetails: product,
-        });
-      }
+  const { addToCart } = useCart();
 
-      localStorage.setItem("cartItems", JSON.stringify(savedCart));
-      alert("Added to cart!");
-    }
+  const handleAddToCart = () => {
+    addToCart(product);
+    alert("Added to cart!");
   };
 
   const handleReviewSubmit = async (e) => {
@@ -69,7 +41,7 @@ const ProductDetail = () => {
 
     try {
       await axios.post(
-        `http://localhost:3001/products/${productId}/review`, // Updated to match the endpoint
+        `http://localhost:3001/products/${productId}/review`,
         {
           rating: reviewRating,
           comment: reviewComment,
@@ -104,7 +76,7 @@ const ProductDetail = () => {
       <h2>{product.name}</h2>
       <p>{product.description}</p>
       <p>Price: ${product.price}</p>
-      <button onClick={addToCart}>Add to Cart</button>
+      <button onClick={handleAddToCart}>Add to Cart</button>
 
       <div className="reviews-section">
         <h3>Customer Reviews</h3>
