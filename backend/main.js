@@ -83,6 +83,12 @@ const productSchema = new mongoose.Schema({
   rating: Number,
   tags: { type: [String], required: true }, // Required
   imageUrl: { type: String, required: true }, // Required
+  sizes: { 
+    type: [String], 
+    enum: ["XS", "S", "M", "L", "XL", "XXL"], 
+    required: true 
+  }, // Array of clothing sizes with predefined options
+  creationDate: { type: Date, default: Date.now } // Automatically set creation date
 });
 const Product = mongoose.model("Product", productSchema);
 
@@ -319,7 +325,15 @@ app.post(
       .notEmpty()
       .withMessage("Product must contain a description."),
     body("imageUrl").isURL().withMessage("A valid image URL is required."),
-    // Add more validations as needed
+    body("sizes")
+      .isArray({ min: 1 })
+      .withMessage("At least one size is required.")
+      .custom((sizes) => {
+        // Ensure each size is a valid option
+        const validSizes = ["XS", "S", "M", "L", "XL", "XXL"];
+        return sizes.every((size) => validSizes.includes(size));
+      })
+      .withMessage("Sizes must be one of XS, S, M, L, XL, XXL"),
   ],
   async (req, res) => {
     // Validate input
@@ -329,20 +343,21 @@ app.post(
     }
 
     try {
-      //Combine user input and hardcoded value rating.
       const productData = {
         ...req.body,
-        rating: 0, // Set all products initially to rating 0, meaning not yet rated.
+        rating: 0, // Set initial rating to 0
+        creationDate: new Date() // Explicitly set creationDate (optional)
       };
       const product = new Product(productData);
       await product.save();
-      res.status(201).send(productData);
+      res.status(201).send(product);
     } catch (error) {
       console.error("Error creating product:", error);
       res.status(500).send("Internal server error.");
     }
   }
 );
+
 
 // Update a product (Admin only)
 app.put(
