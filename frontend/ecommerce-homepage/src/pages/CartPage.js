@@ -56,10 +56,6 @@ const CartPage = () => {
   }, [token]);
 
   useEffect(() => {
-    // Save cart items to local storage if the user is not logged in
-    if (!token) {
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    }
   }, [cartItems, token]);
 
   const addItemToCart = (product) => {
