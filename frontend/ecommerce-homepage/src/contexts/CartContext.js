@@ -103,16 +103,18 @@ export const CartProvider = ({ children }) => {
         const response = await axios.get("http://localhost:3001/cart/total", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setCartTotal(response.data.total);
+        setCartTotal(response.data.total || 0); // Default to 0 if backend returns a falsy value
       } catch (error) {
         console.error("Error fetching cart total:", error);
+        setCartTotal(0); // Default to 0 on error
       }
     } else {
       // For guest users, calculate total locally
-      const total = items.reduce(
-        (sum, item) => sum + (item.productDetail?.price || 0) * item.quantity,
-        0
-      );
+      const total = items.reduce((sum, item) => {
+        const price = item.productDetail?.price || 0; // Default to 0 if price is missing
+        const quantity = item.quantity || 0; // Default to 0 if quantity is missing
+        return sum + price * quantity;
+      }, 0);
       setCartTotal(total);
     }
   };
