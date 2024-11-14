@@ -4,7 +4,14 @@ import { useAuth } from "../contexts/AuthContext";
 import Modal from "../components/Modal";
 
 const CartPage = () => {
-  const { cartItems, cartTotal, loading, clearCart } = useCart();
+  const {
+    cartItems,
+    cartTotal,
+    loading,
+    clearCart,
+    updateCartQuantity,
+    removeFromCart,
+  } = useCart();
   const { user } = useAuth();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,6 +55,18 @@ const CartPage = () => {
     setIsModalOpen(false);
   };
 
+  const handleIncreaseQuantity = (productId, currentQuantity) => {
+    updateCartQuantity(productId, currentQuantity + 1);
+  };
+
+  const handleDecreaseQuantity = (productId, currentQuantity) => {
+    if (currentQuantity > 1) {
+      updateCartQuantity(productId, currentQuantity - 1);
+    } else {
+      removeFromCart(productId);
+    }
+  };
+
   if (loading) return <p>Loading cart...</p>;
 
   if (!cartItems || cartItems.length === 0) {
@@ -58,16 +77,37 @@ const CartPage = () => {
     <div>
       <h1>Your Cart</h1>
       {cartItems.map((item) => (
-        <div key={item.productId}>
+        <div key={item.productId} style={{ marginBottom: "20px" }}>
           <img
             src={item.productDetail?.imageUrl || "placeholder.jpg"}
             alt={item.productDetail?.name || "Product Image"}
             style={{ width: "50px", height: "50px" }}
           />
-          <p>
-            {item.productDetail?.name || "N/A"} - Quantity: {item.quantity}
-          </p>
+          <p>{item.productDetail?.name || "N/A"}</p>
           <p>Price: ${item.productDetail?.price || "N/A"}</p>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <button
+              onClick={() =>
+                handleDecreaseQuantity(item.productId, item.quantity)
+              }
+            >
+              -
+            </button>
+            <span style={{ margin: "0 10px" }}>Quantity: {item.quantity}</span>
+            <button
+              onClick={() =>
+                handleIncreaseQuantity(item.productId, item.quantity)
+              }
+            >
+              +
+            </button>
+          </div>
+          <button
+            onClick={() => removeFromCart(item.productId)}
+            style={{ marginTop: "10px", color: "red" }}
+          >
+            Remove Item
+          </button>
         </div>
       ))}
       <p>Total: ${cartTotal.toFixed(2)}</p>
