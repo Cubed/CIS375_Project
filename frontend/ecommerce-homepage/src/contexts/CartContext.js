@@ -1,5 +1,3 @@
-// src/contexts/CartContext.js
-
 import React, {
   createContext,
   useContext,
@@ -121,32 +119,6 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Update the quantity of a product in the cart
-  const updateCartQuantity = (productId, quantity) => {
-    if (quantity < 1) {
-      removeFromCart(productId);
-    } else if (token) {
-      // For authenticated users, update quantity via server
-      axios
-        .put(
-          `http://localhost:3001/cart/${productId}`,
-          { quantity },
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-        .then(fetchCartWithDetails)
-        .catch((error) =>
-          console.error("Error updating cart quantity:", error)
-        );
-    } else {
-      // For guest users, update localCart directly
-      const updatedCart = localCart.map((item) =>
-        item.productId === productId ? { ...item, quantity } : item
-      );
-
-      setLocalCart(updatedCart);
-    }
-  };
-
   // Update the cart total whenever cart items change
   useEffect(() => {
     calculateCartTotal(cartItems);
@@ -203,32 +175,29 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Purchase function for authenticated users
-  const purchaseAuthenticated = async (productId) => {
-    try {
-      const response = await axios.post(
-        `http://localhost:3001/purchase/${productId}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+  // Update the quantity of a product in the cart
+  const updateCartQuantity = (productId, quantity) => {
+    if (quantity < 1) {
+      removeFromCart(productId);
+    } else if (token) {
+      // For authenticated users, update quantity via server
+      axios
+        .put(
+          `http://localhost:3001/cart/${productId}`,
+          { quantity },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then(fetchCartWithDetails)
+        .catch((error) =>
+          console.error("Error updating cart quantity:", error)
+        );
+    } else {
+      // For guest users, update localCart directly
+      const updatedCart = localCart.map((item) =>
+        item.productId === productId ? { ...item, quantity } : item
       );
-      return response.data;
-    } catch (error) {
-      console.error("Error purchasing product:", error);
-      throw error;
-    }
-  };
 
-  // Purchase function for guest users
-  const purchaseGuest = async (orderDetails) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:3001/purchase/guest",
-        orderDetails
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error processing guest purchase:", error);
-      throw error;
+      setLocalCart(updatedCart);
     }
   };
 
@@ -264,8 +233,6 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateCartQuantity,
         clearCart, // Expose clear cart function
-        purchaseAuthenticated,
-        purchaseGuest,
         loading: isFetching,
       }}
     >

@@ -5,13 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const CheckoutPage = () => {
-  const {
-    cartItems,
-    cartTotal,
-    clearCart,
-    purchaseAuthenticated,
-    purchaseGuest,
-  } = useCart();
+  const { cartTotal, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -42,7 +36,7 @@ const CheckoutPage = () => {
     setDeliveryDate(generateRandomDeliveryDate());
   }, []);
 
-  const handleConfirmPurchase = async () => {
+  const handleConfirmPurchase = () => {
     if (
       !user &&
       (!address ||
@@ -56,35 +50,16 @@ const CheckoutPage = () => {
       return;
     }
 
-    try {
-      if (user) {
-        // Handle authenticated purchase
-        await Promise.all(
-          cartItems.map((item) => purchaseAuthenticated(item.productId))
-        );
-        alert(
-          `Purchase confirmed! Your order will be delivered on ${deliveryDate}.`
-        );
-      } else {
-        // Handle guest purchase
-        const orderDetails = {
-          productId: cartItems.map((item) => item.productId),
-          quantity: cartItems.map((item) => item.quantity),
-          shippingInfo: { address, zipCode },
-          paymentInfo: { cardNumber, cardHolderName, expiryDate, cvv },
-        };
-        await purchaseGuest(orderDetails);
-        alert(
-          `Purchase confirmed! Your order will be delivered on ${deliveryDate}.`
-        );
-      }
+    // Simulate successful purchase
+    alert(
+      `Purchase confirmed! Your order will be delivered on ${deliveryDate}.`
+    );
 
-      // Clear the cart after successful purchase
-      clearCart();
-      navigate("/");
-    } catch (error) {
-      alert("There was an error processing your purchase. Please try again.");
-    }
+    // Clear the cart after successful purchase
+    clearCart();
+
+    // Redirect to the homepage after purchase
+    navigate("/");
   };
 
   return (
@@ -112,8 +87,8 @@ const CheckoutPage = () => {
         </>
       ) : (
         <>
-          <p>Address: {user.shippingInfo.address}</p>
-          <p>Zip Code: {user.shippingInfo.zipcode}</p>
+          <p>Address: {user.shippingInfo.address || "1234 Example St"}</p>
+          <p>Zip Code: {user.shippingInfo.zipcode || "00000"}</p>
         </>
       )}
 
