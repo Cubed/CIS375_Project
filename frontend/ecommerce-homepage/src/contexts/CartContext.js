@@ -1,73 +1,64 @@
 // src/contexts/CartContext.js
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useContext } from "react";
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "./AuthContext";
 
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
+const fetchCartWithDetails = async (token) => {
+  const response = await axios.get("http://localhost:3001/cart", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const cartItems = response.data;
+
+  // Fetch product details for each item in parallel
+  const detailedItems = await Promise.all(
+    cartItems.map(async (item) => {
+      const productResponse = await axios.get(
+        `http://localhost:3001/products/${item.productId}`
+      );
+      return {
+        ...item,
+        productDetail: productResponse.data,
+      };
+    })
+  );
+
+  return detailedItems;
+};
+
 export const CartProvider = ({ children }) => {
-  const token = localStorage.getItem("token");
-  const [cartItems, setCartItems] = useState([]);
+  const { user } = useAuth();
+  const token = user ? localStorage.getItem("token") : null;
 
-  // Fetch cart items based on token status
-  useEffect(() => {
-    const fetchCart = async () => {
-      if (token) {
-        // Fetch cart from server if user is logged in
-        try {
-          const response = await axios.get("http://localhost:3001/cart", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setCartItems(response.data);
-        } catch (error) {
-          console.error("Error fetching cart from server:", error);
-        }
-      } else {
-        // Load cart from local storage for guests
-        const savedCart = localStorage.getItem("cartItems");
-        if (savedCart) {
-          setCartItems(JSON.parse(savedCart));
-        }
-      }
-    };
-    fetchCart();
-  }, [token]);
+  const {
+    data: cartItems = [],
+    refetch,
+    isFetching,
+  } = useQuery({
+    queryKey: ["cart", token],
+    queryFn: () => fetchCartWithDetails(token),
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
 
-  // Sync cart to local storage for guests
-  useEffect(() => {
-    if (!token) {
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    }
-  }, [cartItems, token]);
+  const cartItemCount = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   const addToCart = async (product) => {
-    const updatedCart = [...cartItems];
-    const existingItem = updatedCart.find(
-      (item) => item.productId === product._id
-    );
-
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      updatedCart.push({
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-        quantity: 1,
-      });
-    }
-
-    setCartItems(updatedCart);
-
     if (token) {
-      // Update server cart if logged in
       try {
         await axios.post(
           "http://localhost:3001/cart",
           { productId: product._id, quantity: 1 },
           { headers: { Authorization: `Bearer ${token}` } }
         );
+        refetch(); // Refetch cart items after adding
       } catch (error) {
         console.error("Error updating server cart:", error);
       }
@@ -75,17 +66,12 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = async (productId) => {
-    const updatedCart = cartItems.filter(
-      (item) => item.productId !== productId
-    );
-    setCartItems(updatedCart);
-
     if (token) {
-      // Update server cart if logged in
       try {
         await axios.delete(`http://localhost:3001/cart/${productId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        refetch(); // Refetch cart items after removing
       } catch (error) {
         console.error("Error removing item from server cart:", error);
       }
@@ -93,7 +79,15 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        cartItemCount,
+        addToCart,
+        removeFromCart,
+        loading: isFetching,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

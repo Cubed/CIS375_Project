@@ -207,9 +207,15 @@
   background-color: #e74c3c;
   color: white;
   border-radius: 50%;
-  padding: 4px 8px;
-  font-size: 0.75em;
+  padding: 0; /* Remove padding for a compact structure */
+  font-size: 0.5em;
   font-weight: bold;
+  width: 20px; /* Set explicit width and height for a small, circular shape */
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 /* Responsive styling for smaller screens */
@@ -237,10 +243,5 @@
   .nav-button {
     font-size: 0.9em;
     padding: 6px 10px;
-  }
-
-  .cart-count {
-    top: -4px;
-    right: -8px;
   }
 }
