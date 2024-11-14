@@ -1,98 +1,113 @@
-// src/contexts/CartContext.js
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "./AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
+import { useProduct } from "./ProductContext"; // Import useProduct for accessing product context
 
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
-const fetchCartWithDetails = async (token) => {
-  const response = await axios.get("http://localhost:3001/cart", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  const cartItems = response.data;
-
-  // Fetch product details for each item in parallel
-  const detailedItems = await Promise.all(
-    cartItems.map(async (item) => {
-      const productResponse = await axios.get(
-        `http://localhost:3001/products/${item.productId}`
-      );
-      return {
-        ...item,
-        productDetail: productResponse.data,
-      };
-    })
-  );
-
-  return detailedItems;
-};
-
-const fetchLocalCartWithDetails = async (localCart) => {
-  const detailedItems = await Promise.all(
-    localCart.map(async (item) => {
-      const productResponse = await axios.get(
-        `http://localhost:3001/products/${item.productId}`
-      );
-      return {
-        ...item,
-        productDetail: productResponse.data,
-      };
-    })
-  );
-
-  return detailedItems;
-};
-
 export const CartProvider = ({ children }) => {
   const { user } = useAuth();
   const token = user ? localStorage.getItem("token") : null;
+  const queryClient = useQueryClient(); // Initialize query client for cache access
 
+  // State for managing the guest user's cart
   const [localCart, setLocalCart] = useState(
     JSON.parse(localStorage.getItem("guestCart")) || []
   );
+  const [cartItems, setCartItems] = useState([]);
+  const [isFetching, setIsFetching] = useState(false);
 
-  const {
-    data: cartItems = [],
-    refetch,
-    isFetching,
-  } = useQuery({
-    queryKey: ["cart", token],
-    queryFn: () =>
-      token
-        ? fetchCartWithDetails(token)
-        : fetchLocalCartWithDetails(localCart),
-    enabled: !!token || localCart.length > 0,
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-  });
+  // Fetch product details from cache or make an API call if not cached
+  const fetchProductDetailsFromCache = (productId) => {
+    return queryClient.getQueryData(["product", productId]);
+  };
 
-  const cartItemCount = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+  const fetchProductWithFallback = async (productId) => {
+    const cachedProduct = fetchProductDetailsFromCache(productId);
+    if (cachedProduct) {
+      return cachedProduct;
+    }
 
+    // Fetch from API if not in cache and then store it in cache
+    const response = await axios.get(
+      `http://localhost:3001/products/${productId}`
+    );
+    const product = response.data;
+    queryClient.setQueryData(["product", productId], product);
+    return product;
+  };
+
+  // Fetch detailed cart items for both authenticated and guest users
+  const fetchCartWithDetails = useCallback(async () => {
+    setIsFetching(true);
+    try {
+      const cart = token
+        ? await axios
+            .get("http://localhost:3001/cart", {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((res) => res.data)
+        : localCart;
+
+      const detailedItems = await Promise.all(
+        cart.map(async (item) => {
+          const productDetail = await fetchProductWithFallback(item.productId);
+          return {
+            ...item,
+            productDetail,
+          };
+        })
+      );
+
+      setCartItems(detailedItems);
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    } finally {
+      setIsFetching(false);
+    }
+  }, [token, localCart]);
+
+  // Fetch cart items on load and whenever token or localCart changes
+  useEffect(() => {
+    fetchCartWithDetails();
+  }, [fetchCartWithDetails]);
+
+  // Save localCart to localStorage whenever it changes for guest users
   useEffect(() => {
     if (!token) {
       localStorage.setItem("guestCart", JSON.stringify(localCart));
     }
   }, [localCart, token]);
 
-  const addToCart = async (product) => {
+  // Calculate total item count in the cart
+  const cartItemCount = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
+
+  // Add a product to the cart
+  const addToCart = (product) => {
     if (token) {
-      try {
-        await axios.post(
+      // For authenticated users, add item via server
+      axios
+        .post(
           "http://localhost:3001/cart",
           { productId: product._id, quantity: 1 },
           { headers: { Authorization: `Bearer ${token}` } }
-        );
-        refetch(); // Refetch cart items after adding
-      } catch (error) {
-        console.error("Error updating server cart:", error);
-      }
+        )
+        .then(fetchCartWithDetails)
+        .catch((error) => console.error("Error updating server cart:", error));
     } else {
+      // For guest users, update localCart directly
       const existingItem = localCart.find(
         (item) => item.productId === product._id
       );
@@ -108,20 +123,50 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const removeFromCart = async (productId) => {
+  // Remove a product from the cart
+  const removeFromCart = (productId) => {
     if (token) {
-      try {
-        await axios.delete(`http://localhost:3001/cart/${productId}`, {
+      // For authenticated users, remove item via server
+      axios
+        .delete(`http://localhost:3001/cart/${productId}`, {
           headers: { Authorization: `Bearer ${token}` },
-        });
-        refetch(); // Refetch cart items after removing
-      } catch (error) {
-        console.error("Error removing item from server cart:", error);
-      }
+        })
+        .then(fetchCartWithDetails)
+        .catch((error) =>
+          console.error("Error removing item from server cart:", error)
+        );
     } else {
+      // For guest users, update localCart directly
       const updatedCart = localCart.filter(
         (item) => item.productId !== productId
       );
+
+      setLocalCart(updatedCart);
+    }
+  };
+
+  // Update the quantity of a product in the cart
+  const updateCartQuantity = (productId, quantity) => {
+    if (quantity < 1) {
+      removeFromCart(productId);
+    } else if (token) {
+      // For authenticated users, update quantity via server
+      axios
+        .put(
+          `http://localhost:3001/cart/${productId}`,
+          { quantity },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then(fetchCartWithDetails)
+        .catch((error) =>
+          console.error("Error updating cart quantity:", error)
+        );
+    } else {
+      // For guest users, update localCart directly
+      const updatedCart = localCart.map((item) =>
+        item.productId === productId ? { ...item, quantity } : item
+      );
+
       setLocalCart(updatedCart);
     }
   };
@@ -133,6 +178,7 @@ export const CartProvider = ({ children }) => {
         cartItemCount,
         addToCart,
         removeFromCart,
+        updateCartQuantity,
         loading: isFetching,
       }}
     >

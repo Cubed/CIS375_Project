@@ -3,7 +3,8 @@ import React from "react";
 import { useCart } from "../contexts/CartContext";
 
 const CartPage = () => {
-  const { cartItems, addToCart, loading } = useCart();
+  const { cartItems, addToCart, removeFromCart, updateCartQuantity, loading } =
+    useCart();
 
   if (loading) return <p>Loading cart...</p>;
 
@@ -11,12 +12,20 @@ const CartPage = () => {
     return <p>No items in the cart.</p>;
   }
 
+  const handleQuantityChange = (productId, newQuantity) => {
+    if (newQuantity <= 0) {
+      removeFromCart(productId);
+    } else {
+      updateCartQuantity(productId, newQuantity);
+    }
+  };
+
   return (
     <div>
       <h1>Your Cart</h1>
       {cartItems.map((item) => (
         <div
-          key={item.productId} // Use productId as the unique key
+          key={item.productId}
           style={{
             display: "flex",
             alignItems: "center",
@@ -36,14 +45,22 @@ const CartPage = () => {
           />
           <div>
             <p>Product Name: {item.productDetail?.name || "N/A"}</p>
-            <p>Quantity: {item.quantity}</p>
+            <div>
+              <label>Quantity:</label>
+              <input
+                type="number"
+                value={item.quantity}
+                min="1"
+                onChange={(e) =>
+                  handleQuantityChange(item.productId, Number(e.target.value))
+                }
+                style={{ width: "50px", marginLeft: "5px" }}
+              />
+            </div>
             <p>Price: ${item.productDetail?.price || "N/A"}</p>
           </div>
         </div>
       ))}
-      <button onClick={() => addToCart(cartItems[0]?.productDetail)}>
-        Add More of First Item
-      </button>
     </div>
   );
 };
