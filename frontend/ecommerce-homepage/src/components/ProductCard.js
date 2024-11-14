@@ -1,3 +1,4 @@
+// src/components/ProductCard.js
 import React from "react";
 import { Link } from "react-router-dom";
 import "../App.css";
@@ -35,6 +36,8 @@ const ProductCard = ({ product }) => {
         />
         <h3 className="product-name">{product.name}</h3>
       </Link>
+      {/* Display the product price */}
+      <p className="product-price">${product.price.toFixed(2)}</p>
       <div className="product-rating">
         {error ? <span>Error loading rating</span> : renderStars(averageRating)}
       </div>
