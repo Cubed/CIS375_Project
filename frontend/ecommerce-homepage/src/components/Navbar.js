@@ -19,7 +19,9 @@ const Navbar = () => {
             <span>Loading...</span>
           ) : user ? (
             <>
-              <span className="nav-welcome">Welcome, {user.username}</span>
+              <Link to="/account" className="nav-welcome">
+                Welcome, {user.username}
+              </Link>
               <button onClick={logout} className="nav-button">
                 Logout
               </button>
