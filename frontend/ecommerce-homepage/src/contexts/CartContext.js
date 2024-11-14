@@ -204,7 +204,7 @@ export const CartProvider = ({ children }) => {
     if (token) {
       // For authenticated users, clear cart via server
       axios
-        .delete("http://localhost:3001/cart/clear", {
+        .delete("http://localhost:3001/cart_all/delete", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(() => {

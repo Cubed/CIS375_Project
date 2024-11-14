@@ -48,9 +48,10 @@ const CartPage = () => {
       return;
     }
 
+    // Simulate successful purchase
     alert("Purchase confirmed! Your order will be delivered soon.");
 
-    // Clear the cart after confirming purchase
+    // Clear the cart after successful purchase
     clearCart();
     setIsModalOpen(false);
   };
@@ -110,7 +111,7 @@ const CartPage = () => {
           </button>
         </div>
       ))}
-      <p>Total: ${cartTotal.toFixed(2)}</p>
+      <p>Total: ${cartTotal ? cartTotal.toFixed(2) : "0.00"}</p>
       <button onClick={handleBuyClick}>Buy</button>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
@@ -119,7 +120,8 @@ const CartPage = () => {
           <strong>Estimated Delivery Date:</strong> {generateDeliveryDate()}
         </p>
         <p>
-          <strong>Total Price:</strong> ${cartTotal.toFixed(2)}
+          <strong>Total Price:</strong> $
+          {cartTotal ? cartTotal.toFixed(2) : "0.00"}
         </p>
 
         {user ? (
