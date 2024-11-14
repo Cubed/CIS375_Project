@@ -8,7 +8,6 @@ import React, {
 import axios from "axios";
 import { useAuth } from "./AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
-import { useProduct } from "./ProductContext"; // Import useProduct for accessing product context
 
 const CartContext = createContext();
 
@@ -24,6 +23,7 @@ export const CartProvider = ({ children }) => {
     JSON.parse(localStorage.getItem("guestCart")) || []
   );
   const [cartItems, setCartItems] = useState([]);
+  const [cartTotal, setCartTotal] = useState(0); // State to hold cart total
   const [isFetching, setIsFetching] = useState(false);
 
   // Fetch product details from cache or make an API call if not cached
@@ -69,6 +69,7 @@ export const CartProvider = ({ children }) => {
       );
 
       setCartItems(detailedItems);
+      calculateCartTotal(detailedItems); // Calculate total after fetching items
     } catch (error) {
       console.error("Error fetching cart items:", error);
     } finally {
@@ -93,6 +94,33 @@ export const CartProvider = ({ children }) => {
     (total, item) => total + item.quantity,
     0
   );
+
+  // Calculate the cart total based on cart items
+  const calculateCartTotal = async (items) => {
+    if (user && token) {
+      // For authenticated users, fetch total from the backend
+      try {
+        const response = await axios.get("http://localhost:3001/cart/total", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCartTotal(response.data.total);
+      } catch (error) {
+        console.error("Error fetching cart total:", error);
+      }
+    } else {
+      // For guest users, calculate total locally
+      const total = items.reduce(
+        (sum, item) => sum + (item.productDetail?.price || 0) * item.quantity,
+        0
+      );
+      setCartTotal(total);
+    }
+  };
+
+  // Update the cart total whenever cart items change
+  useEffect(() => {
+    calculateCartTotal(cartItems);
+  }, [cartItems]);
 
   // Add a product to the cart
   const addToCart = (product) => {
@@ -171,14 +199,38 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // Clear all items in the cart
+  const clearCart = () => {
+    if (token) {
+      // For authenticated users, clear cart via server
+      axios
+        .delete("http://localhost:3001/cart/clear", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(() => {
+          setCartItems([]);
+          setCartTotal(0);
+        })
+        .catch((error) => console.error("Error clearing cart:", error));
+    } else {
+      // For guest users, clear local cart
+      setLocalCart([]);
+      setCartItems([]);
+      setCartTotal(0);
+      localStorage.removeItem("guestCart");
+    }
+  };
+
   return (
     <CartContext.Provider
       value={{
         cartItems,
         cartItemCount,
+        cartTotal, // Expose cart total in context
         addToCart,
         removeFromCart,
         updateCartQuantity,
+        clearCart, // Expose clear cart function
         loading: isFetching,
       }}
     >
