@@ -10,6 +10,7 @@ const CheckoutPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // States for shipping and payment information
   const [address, setAddress] = useState(user?.shippingInfo?.address || "");
   const [city, setCity] = useState(user?.shippingInfo?.city || "");
   const [state, setState] = useState(user?.shippingInfo?.state || "");
@@ -57,9 +58,8 @@ const CheckoutPage = () => {
 
     try {
       if (user) {
-        // Authenticated user purchase for each item in the cart
+        // Authenticated user purchase (already implemented)
         const token = localStorage.getItem("token");
-
         for (const item of cartItems) {
           await axios.post(
             `http://localhost:3001/purchase/${item.productId}`,
@@ -68,6 +68,18 @@ const CheckoutPage = () => {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
+            }
+          );
+        }
+      } else {
+        // Guest purchase for each item in the cart
+        for (const item of cartItems) {
+          await axios.post(
+            `http://localhost:3001/purchase/${item.productId}/guest`,
+            {
+              quantity: item.quantity,
+              shippingInfo: { address, city, state, zipcode: zipCode },
+              paymentInfo: { cardNumber, cardHolderName, expiryDate, cvv },
             }
           );
         }
