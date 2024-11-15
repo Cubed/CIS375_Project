@@ -1,16 +1,18 @@
 // src/components/CheckoutPage.js
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const CheckoutPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { cartItems, clearCart } = useCart();
   const { user } = useAuth();
-  const navigate = useNavigate();
 
-  // States for shipping and payment information
+  const { productId, quantity } = location.state || {}; // Product details for guest checkout
+
   const [address, setAddress] = useState(user?.shippingInfo?.address || "");
   const [city, setCity] = useState(user?.shippingInfo?.city || "");
   const [state, setState] = useState(user?.shippingInfo?.state || "");
@@ -28,10 +30,9 @@ const CheckoutPage = () => {
   const [deliveryDate, setDeliveryDate] = useState("");
 
   useEffect(() => {
-    // Generate a random delivery date between 3 to 7 days from today
     const generateRandomDeliveryDate = () => {
       const today = new Date();
-      const randomDays = Math.floor(Math.random() * 5) + 3; // Random number between 3 and 7
+      const randomDays = Math.floor(Math.random() * 5) + 3;
       const delivery = new Date(today);
       delivery.setDate(today.getDate() + randomDays);
       return delivery.toDateString();
@@ -58,7 +59,7 @@ const CheckoutPage = () => {
 
     try {
       if (user) {
-        // Authenticated user purchase (already implemented)
+        // Authenticated user purchase
         const token = localStorage.getItem("token");
         for (const item of cartItems) {
           await axios.post(
@@ -71,29 +72,19 @@ const CheckoutPage = () => {
             }
           );
         }
-      } else {
-        // Guest purchase for each item in the cart
-        for (const item of cartItems) {
-          await axios.post(
-            `http://localhost:3001/purchase/${item.productId}/guest`,
-            {
-              quantity: item.quantity,
-              shippingInfo: { address, city, state, zipcode: zipCode },
-              paymentInfo: { cardNumber, cardHolderName, expiryDate, cvv },
-            }
-          );
-        }
+      } else if (productId) {
+        // Guest checkout for a single product
+        await axios.post(`http://localhost:3001/purchase/${productId}/guest`, {
+          quantity,
+          shippingInfo: { address, city, state, zipcode: zipCode },
+          paymentInfo: { cardNumber, cardHolderName, expiryDate, cvv },
+        });
       }
 
-      // Simulate successful purchase
       alert(
         `Purchase confirmed! Your order will be delivered on ${deliveryDate}.`
       );
-
-      // Clear the cart after successful purchase
       clearCart();
-
-      // Redirect to the homepage after purchase
       navigate("/");
     } catch (error) {
       console.error("Error confirming purchase:", error);
@@ -104,10 +95,9 @@ const CheckoutPage = () => {
   return (
     <div>
       <h1>Checkout</h1>
-
-      <h2>Shipping Information</h2>
-      {!user ? (
+      {!user && (
         <>
+          <h2>Shipping Information</h2>
           <input
             type="text"
             placeholder="Address"
@@ -136,19 +126,8 @@ const CheckoutPage = () => {
             onChange={(e) => setZipCode(e.target.value)}
             required
           />
-        </>
-      ) : (
-        <>
-          <p>Address: {user.shippingInfo.address || "1234 Example St"}</p>
-          <p>City: {user.shippingInfo.city || "Sample City"}</p>
-          <p>State: {user.shippingInfo.state || "Sample State"}</p>
-          <p>Zip Code: {user.shippingInfo.zipcode || "00000"}</p>
-        </>
-      )}
 
-      <h2>Payment Information</h2>
-      {!user ? (
-        <>
+          <h2>Payment Information</h2>
           <input
             type="text"
             placeholder="Card Number"
@@ -178,18 +157,9 @@ const CheckoutPage = () => {
             required
           />
         </>
-      ) : (
-        <>
-          <p>
-            Card Number: **** **** ****{" "}
-            {user.savedPaymentInfo.cardNumber.slice(-4)}
-          </p>
-          <p>Card Holder: {user.savedPaymentInfo.cardHolderName}</p>
-        </>
       )}
 
       <h3>Estimated Delivery Date: {deliveryDate}</h3>
-
       <button onClick={handleConfirmPurchase}>Confirm Purchase</button>
     </div>
   );
