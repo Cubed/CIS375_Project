@@ -11,21 +11,17 @@ import { AuthProvider } from "./contexts/AuthContext"; // Import AuthProvider
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <Navbar />{" "}
-          {/* Use Navbar to include login, register, and logout logic */}
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/product/:productId" element={<ProductDetail />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-          </Routes>
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+    <CartProvider>
+      <Router>
+        <Header />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/product/:productId" element={<ProductDetail />} />
+          <Route path="c/art" element={<CartPage />} />{" "}
+          {/* Use CartPage here */}
+        </Routes>
+      </Router>
+    </CartProvider>
   );
 }
 
