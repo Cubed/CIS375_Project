@@ -1,9 +1,71 @@
-/* src/HomePage.css */
+/* General styling */
+body {
+  background-color: #1b1b1b;
+  color: #f0f0f0;
+}
 
 .homepage {
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  padding: 20px;
+  background-color: #111;
+  color: #f0f0f0;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-group label {
+  font-weight: bold;
+}
+
+.price-range input {
+  width: 45%;
+  margin-right: 5%;
+  padding: 5px;
+  background-color: #333;
+  border: none;
+  color: #f0f0f0;
+}
+
+.size-options button {
+  width: 40px;
+  height: 40px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  background-color: #333;
+  border: none;
+  color: #f0f0f0;
+  cursor: pointer;
+}
+
+/* Product Section */
+.product-section {
+  flex: 1;
+  padding: 20px;
   text-align: center;
 }
 
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sort-by select {
+  background-color: #333;
+  color: #f0f0f0;
+  border: none;
+  padding: 5px;
+}
+
+/* Product Grid */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -12,10 +74,12 @@
 }
 
 .product-card {
+  background-color: #222;
+  padding: 16px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
   transition: transform 0.2s;
 }
 
@@ -23,72 +87,14 @@
   transform: scale(1.05);
 }
 
-/* Styling the product image */
 .product-image {
-  max-width: 100%;
-  max-height: 200px;
+  max-width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  display: block;
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 8px;
-}
-
-/* Styling the rating stars */
-.star {
-  color: #ffd700;
-  font-size: 1.2em;
-}
-
-/* Styling the tags section */
-.product-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-/* Styling each individual tag as a bubble */
-.tag {
-  position: relative;
-  background-color: #e0f7fa;
-  color: #00796b;
-  padding: 6px 12px;
-  border-radius: 50px;
-  font-size: 0.85em;
-  font-weight: 500;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: inline-block;
-  margin-right: 5px;
-  transition: transform 0.2s ease-in-out;
-}
-
-.tag:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-}
-
-/* Optional - Add a "bubble" effect with a floating style */
-.tag::after {
-  content: "";
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 10px;
-  background-color: #e0f7fa;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.product-card:hover {
-  transform: scale(1.05);
-}
-
-.product-image {
-  max-width: 150px; /* Set a max width so it doesn’t grow too large */
-  height: 150px; /* Maintain aspect ratio */
-  margin: 0 auto; /* Center the image */
-  display: block; /* Ensure the image is a block element for centering */
 }
 
 .product-name {
@@ -108,31 +114,74 @@
 }
 
 .star.full {
-  color: #ffd700; /* Gold for full stars */
+  color: #ffd700;
 }
 
 .star.half {
-  color: #ffd700; /* Same color, but indicate it's a half star if you use an image or alternate symbol */
+  color: #ffd700;
 }
 
 .star.empty {
-  color: #ddd; /* Gray for empty stars */
+  color: #ddd;
 }
 
-/* Navbar styling */
+/* Product Tags */
+.product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tag {
+  background-color: #e0f7fa;
+  color: #00796b;
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 0.85em;
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  margin-right: 5px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.tag:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.tag::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background-color: #e0f7fa;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Navbar */
 .navbar {
+  background-color: #2c3e50;
+  color: white;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background-color: #2c3e50;
-  color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  flex-wrap: wrap; /* Allows wrapping in smaller screens */
 }
 
 .nav-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
 .nav-logo {
@@ -141,15 +190,48 @@
   text-decoration: none;
   font-weight: bold;
   transition: color 0.3s ease;
+  flex: 1; /* Allows the logo to take space */
 }
 
 .nav-logo:hover {
   color: #f39c12;
 }
 
+.nav-search {
+  display: flex;
+  align-items: center;
+}
+
+.nav-search input {
+  padding: 5px 10px;
+  background-color: #333;
+  color: #f0f0f0;
+  border: 1px solid #444;
+  border-radius: 4px 0 0 4px;
+}
+
+.search-button {
+  padding: 5px 10px;
+  background-color: #333;
+  color: #f0f0f0;
+  border: 1px solid #444;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 15px;
+  flex: 1; /* Allows flex space for better centering */
+  justify-content: flex-end; /* Aligns links to the right */
+  white-space: nowrap;
+}
+
+.nav-welcome {
+  color: #ecf0f1;
+  font-size: 1em;
+  margin-right: 15px;
 }
 
 .nav-button {
@@ -192,24 +274,146 @@
   background-color: #e74c3c;
   color: white;
   border-radius: 50%;
-  padding: 4px 8px;
-  font-size: 0.75em;
+  padding: 0; /* Remove padding for a compact structure */
+  font-size: 0.5em;
   font-weight: bold;
+  width: 7px; /* Set explicit width and height for a small, circular shape */
+  height: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-/* Responsive styling for smaller screens */
+.tag-options button,
+.size-options button {
+  padding: 5px 10px;
+  margin: 5px;
+  border: 1px solid #ccc;
+  background-color: #333;
+  color: #f0f0f0;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.tag-options button.active,
+.size-options button.active {
+  background-color: #f39c12;
+  color: #1b1b1b;
+  border-color: #f39c12;
+}
+
+
+/* Responsive styling */
 @media (max-width: 768px) {
+  .navbar {
+    padding: 10px;
+    flex-direction: column; /* Stack items vertically */
+  }
+
+  .nav-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
   .nav-links {
     gap: 8px;
+    flex-direction: column; /* Stack links vertically */
+    align-items: center;
+  }
+
+  .nav-welcome {
+    margin-right: 0; /* Center-align welcome message */
   }
 
   .nav-button {
     font-size: 0.9em;
     padding: 6px 10px;
   }
+}
 
-  .cart-count {
-    top: -4px;
-    right: -8px;
+/* App.css */
+
+/* ... existing styles ... */
+
+/* Navbar Enhancements */
+
+/* Icon Buttons */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ecf0f1;
+  position: relative;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.icon-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: #2c3e50;
+  border: 1px solid #444;
+  border-radius: 4px;
+  min-width: 150px;
+  z-index: 1000;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 15px;
+  color: #ecf0f1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #34495e;
+}
+
+/* Adjust Cart Count */
+.cart-count {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  /* ... existing responsive styles ... */
+
+  .dropdown-menu {
+    top: 35px;
+    right: 10px;
+    min-width: 120px;
+  }
+
+  .dropdown-item {
+    padding: 8px 12px;
+    font-size: 0.9em;
   }
 }

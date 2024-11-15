@@ -16,24 +16,17 @@ const LoginPage = () => {
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    try {
-      await login(email, password);
+    const loginResponse = await login(email, password);
+
+    if (loginResponse.success) {
+      // If login is successful, navigate to the homepage
       navigate("/");
-    } catch (error) {
-      if (error.response && error.response.status === 429) {
-        setErrorMessage(
-          "Too many login attempts. Please wait a few minutes before trying again."
-        );
-      } else {
-        setErrorMessage(
-          "Login failed. Please check your credentials and try again."
-        );
-      }
-      console.error("Login error:", error);
-    } finally {
-      // Allow retries only after a short delay
-      setTimeout(() => setIsSubmitting(false), 3000); // 3-second delay
+    } else {
+      // If login failed, display the error message
+      setErrorMessage(loginResponse.message);
     }
+
+    setIsSubmitting(false); // Re-enable the form after handling response
   };
 
   return (

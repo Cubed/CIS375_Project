@@ -1,64 +1,30 @@
 // src/components/ProductCard.js
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import "../App.css";
+import { useProduct } from "../contexts/ProductContext";
 
 const ProductCard = ({ product }) => {
-  const [averageRating, setAverageRating] = useState(0);
+  const { useProductReviews } = useProduct();
+  const { data: reviewsData, error } = useProductReviews(product._id);
+
+  const averageRating = reviewsData?.averageRating || 0;
 
   // Function to render stars based on rating
   const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
-    const emptyStars = 5 - fullStars - halfStar;
+    const stars = Array(5).fill("☆"); // Initialize an array with five empty stars
 
-    return (
-      <>
-        {Array(fullStars)
-          .fill("★")
-          .map((star, index) => (
-            <span key={`full-${index}`} className="star full">
-              {star}
-            </span>
-          ))}
-        {halfStar === 1 && <span className="star half">★</span>}
-        {Array(emptyStars)
-          .fill("☆")
-          .map((star, index) => (
-            <span key={`empty-${index}`} className="star empty">
-              {star}
-            </span>
-          ))}
-      </>
-    );
+    // Fill the array with full stars based on the rating
+    for (let i = 0; i < Math.floor(rating); i++) {
+      stars[i] = "★";
+    }
+
+    return stars.map((star, index) => (
+      <span key={index} className={`star ${star === "★" ? "full" : "empty"}`}>
+        {star}
+      </span>
+    ));
   };
-
-  // Function to fetch reviews and calculate the average rating
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/products/${product._id}/reviews`
-        );
-        const reviews = response.data;
-
-        if (reviews.length > 0) {
-          // Calculate the average rating
-          const totalRating = reviews.reduce(
-            (sum, review) => sum + review.rating,
-            0
-          );
-          const avgRating = totalRating / reviews.length;
-          setAverageRating(avgRating);
-        }
-      } catch (error) {
-        console.error("Error fetching reviews:", error);
-      }
-    };
-
-    fetchReviews();
-  }, [product._id]);
 
   return (
     <div className="product-card">
@@ -70,8 +36,11 @@ const ProductCard = ({ product }) => {
         />
         <h3 className="product-name">{product.name}</h3>
       </Link>
-      <div className="product-rating">{renderStars(averageRating)}</div>
-
+      {/* Display the product price */}
+      <p className="product-price">${product.price.toFixed(2)}</p>
+      <div className="product-rating">
+        {error ? <span>Error loading rating</span> : renderStars(averageRating)}
+      </div>
       {/* Render tags if available */}
       <div className="product-tags">
         {product.tags && product.tags.length > 0 ? (

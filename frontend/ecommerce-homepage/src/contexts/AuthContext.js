@@ -1,5 +1,6 @@
 // src/contexts/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -9,68 +10,17 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user profile if token exists in localStorage
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        try {
-          const response = await fetch("http://localhost:3001/account/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-          } else {
-            // Clear token if profile fetch fails
-            localStorage.removeItem("token");
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-          localStorage.removeItem("token");
-        }
-      }
-      setLoading(false);
-    };
-
-    fetchUserProfile();
-  }, []);
-
-  // Login function with profile re-fetch
-  const login = async (email, password) => {
-    setLoading(true); // Set loading to true to trigger re-renders if needed
-    const response = await fetch("http://localhost:3001/account/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
-
-      // Fetch the profile after setting the token
-      await fetchUserProfile();
-    } else {
-      console.error("Login failed");
-      setLoading(false); // Reset loading in case of error
-    }
-  };
-
-  // Function to fetch the user profile after login
+  // Fetch user profile after login or registration
   const fetchUserProfile = async () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const response = await fetch("http://localhost:3001/account/me", {
+        const response = await axios.get("http://localhost:3001/account/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
+        if (response.status === 200) {
+          setUser(response.data);
         } else {
-          // Clear token if fetch fails
           localStorage.removeItem("token");
           setUser(null);
         }
@@ -83,22 +33,67 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
-  const register = async (userData) => {
+  // Login function
+  const login = async (email, password) => {
     setLoading(true);
-    const response = await fetch("http://localhost:3001/account/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
-
-      // Fetch the profile after setting the token
-      await fetchUserProfile();
-    } else {
+    try {
+      const response = await axios.post("http://localhost:3001/account/login", {
+        email,
+        password,
+      });
+      if (response.status === 200) {
+        localStorage.setItem("token", response.data.token);
+        await fetchUserProfile();
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || "Login failed.",
+        };
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false, message: "An unexpected error occurred." };
+    } finally {
       setLoading(false);
+    }
+  };
+
+  // New: updateAccount function
+
+  const updateAccount = async (updates) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.put(
+        "http://localhost:3001/account/update",
+        updates,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 200) {
+        await fetchUserProfile(); // Refresh profile after updating
+        return { success: true, message: response.data.message };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || "Update failed.",
+        };
+      }
+    } catch (error) {
+      console.error("Error updating account:", error);
+
+      // Check for the specific error message
+      if (error.response?.data?.errors) {
+        const creditCardError = error.response.data.errors.find(
+          (err) => err.msg === "Invalid credit card number."
+        );
+        if (creditCardError) {
+          return { success: false, message: "Invalid credit card number." };
+        }
+      }
+
+      return { success: false, message: "An unexpected error occurred." };
     }
   };
 
@@ -107,9 +102,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, updateAccount, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
+
+export default AuthContext;
