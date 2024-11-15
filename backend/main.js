@@ -103,6 +103,11 @@ const Cart = mongoose.model("Cart", cartSchema);
 const entitlementSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+  size: { 
+    type: String, 
+    enum: ["XS", "S", "M", "L", "XL", "XXL"], 
+    required: true 
+  }, // Added size field
 });
 const Entitlement = mongoose.model("Entitlement", entitlementSchema);
 
@@ -126,7 +131,13 @@ const orderSchema = new mongoose.Schema({
     zipcode: String,
     city: String,
   },
+  size: { 
+    type: String, 
+    enum: ["XS", "S", "M", "L", "XL", "XXL"], 
+    required: true 
+  }, // Array of clothing sizes with predefined options
 });
+
 const Order = mongoose.model("Order", orderSchema);
 
 // Middleware for authentication
@@ -186,26 +197,73 @@ function validateLuhn(cardNumber) {
 
 // Entitlement System
 
+/*
+Payload:
+{
+	"size":"S",
+	"quantity":1
+}
+*/
+
+
 // Endpoint to simulate product purchase (for authenticated users)
-app.post("/purchase/:productId", authenticateToken, async (req, res) => {
-  const { productId } = req.params;
-  try {
-    // Check if product exists
-    const product = await Product.findById(productId);
-    if (!product) return res.status(404).send("Product not found.");
+app.post(
+  "/purchase/:productId",
+  authenticateToken,
+  [
+    body("size")
+      .isIn(["XS", "S", "M", "L", "XL", "XXL"])
+      .withMessage("Invalid size. Available sizes: XS, S, M, L, XL, XXL."),
+    body("quantity")
+      .isInt({ gt: 0 })
+      .withMessage("Quantity must be a positive integer."),
+  ],
+  async (req, res) => {
+    // Validate input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-    // Create entitlement if user purchases the product
-    const entitlement = new Entitlement({ userId: req.user.id, productId });
-    await entitlement.save();
+    const { productId } = req.params;
+    const { size, quantity } = req.body;
 
-    res
-      .status(200)
-      .send({ message: "Product purchased and entitlement created" });
-  } catch (error) {
-    console.error("Error purchasing product:", error);
-    res.status(500).send("Internal server error.");
+    try {
+      // Check if product exists
+      const product = await Product.findById(productId);
+      if (!product) return res.status(404).send("Product not found.");
+
+      const user = await User.findById(req.user.id);
+      // Check if the requested size is available for the product
+      if (!product.sizes.includes(size)) {
+        return res.status(400).send(`Size ${size} is not available for this product.`);
+      }
+
+      // Calculate total
+      const total = product.price * quantity;
+
+      // Create entitlement if user purchases the product
+      const entitlement = new Entitlement({ userId: req.user.id, productId, size });
+      await entitlement.save();
+
+      // Create a new order
+      const order = new Order({
+        userId: user.id, // Indicates a guest purchase
+        products: [{ productId, quantity, size }],
+        total,
+        shippingInfo: user.shippingInfo,
+        size
+      });
+      await order.save();
+
+      res.status(200).send({ message: "Product purchased and entitlement created", entitlement });
+    } catch (error) {
+      console.error("Error purchasing product:", error);
+      res.status(500).send("Internal server error.");
+    }
   }
-});
+);
+
 
 // View Products with Recommendations
 app.get("/products", async (req, res) => {
@@ -1055,6 +1113,9 @@ app.post(
     body("quantity")
       .isInt({ gt: 0 })
       .withMessage("Quantity must be a positive integer."),
+    body("size")
+      .isIn(["XS", "S", "M", "L", "XL", "XXL"])
+      .withMessage("Invalid size. Available sizes: XS, S, M, L, XL, XXL."),
     body("shippingInfo.address").notEmpty().withMessage("Address is required."),
     body("shippingInfo.state").notEmpty().withMessage("State is required."),
     body("shippingInfo.zipcode")
@@ -1102,6 +1163,7 @@ app.post(
         products: [{ productId, quantity }],
         total,
         shippingInfo,
+        size
       });
       await order.save();
 
