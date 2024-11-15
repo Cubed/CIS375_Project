@@ -131,6 +131,7 @@ const Order = mongoose.model("Order", orderSchema);
 
 // Middleware for authentication
 const authenticateToken = (req, res, next) => {
+  if (req.path === "/purchase/guest") return next();
   const authHeader = req.header("Authorization");
   const token =
     authHeader && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
@@ -188,7 +189,6 @@ function validateLuhn(cardNumber) {
 // Endpoint to simulate product purchase (for authenticated users)
 app.post("/purchase/:productId", authenticateToken, async (req, res) => {
   const { productId } = req.params;
-
   try {
     // Check if product exists
     const product = await Product.findById(productId);
@@ -1048,11 +1048,10 @@ app.put(
   }
 );
 
-// Guest Purchase Route
+// Guest Purchase Route (No Authorization Required)
 app.post(
-  "/purchase/guest",
+  "/purchase/:productId/guest",
   [
-    body("productId").notEmpty().withMessage("Product ID is required."),
     body("quantity")
       .isInt({ gt: 0 })
       .withMessage("Quantity must be a positive integer."),
@@ -1079,12 +1078,13 @@ app.post(
   ],
   async (req, res) => {
     // Validate input
+    const { productId } = req.params;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { productId, quantity, shippingInfo, paymentInfo } = req.body;
+    const { quantity, shippingInfo, paymentInfo } = req.body;
     try {
       // Check if product exists
       const product = await Product.findById(productId);
@@ -1120,6 +1120,7 @@ app.post(
     }
   }
 );
+
 
 // Start the Server
 app.listen(PORT, () => {
