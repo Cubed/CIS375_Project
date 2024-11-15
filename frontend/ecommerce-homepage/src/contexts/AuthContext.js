@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // New: updateAccount function
+
   const updateAccount = async (updates) => {
     const token = localStorage.getItem("token");
     try {
@@ -81,6 +82,17 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Error updating account:", error);
+
+      // Check for the specific error message
+      if (error.response?.data?.errors) {
+        const creditCardError = error.response.data.errors.find(
+          (err) => err.msg === "Invalid credit card number."
+        );
+        if (creditCardError) {
+          return { success: false, message: "Invalid credit card number." };
+        }
+      }
+
       return { success: false, message: "An unexpected error occurred." };
     }
   };
