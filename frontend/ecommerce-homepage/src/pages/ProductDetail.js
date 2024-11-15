@@ -5,6 +5,7 @@ import { useProduct } from "../contexts/ProductContext";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
+import { FaStar, FaRegStar } from "react-icons/fa"; // Importing star icons
 import "./ProductDetail.css";
 
 const ProductDetail = () => {
@@ -26,6 +27,7 @@ const ProductDetail = () => {
   const token = localStorage.getItem("token");
   const [reviewComment, setReviewComment] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0); // State for hover effect
   const [reviewError, setReviewError] = useState(null);
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -36,7 +38,7 @@ const ProductDetail = () => {
   // Guest checkout information states
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
-  const [state, setState] = useState("");
+  const [stateField, setStateField] = useState(""); // Renamed to avoid conflict with React's state
   const [zipCode, setZipCode] = useState("");
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolderName, setCardHolderName] = useState("");
@@ -74,6 +76,11 @@ const ProductDetail = () => {
       return;
     }
 
+    if (reviewRating === 0) {
+      setReviewError("Please select a rating.");
+      return;
+    }
+
     try {
       await axios.post(
         `http://localhost:3001/products/${productId}/review`,
@@ -90,6 +97,7 @@ const ProductDetail = () => {
       alert("Review submitted successfully!");
       setReviewComment("");
       setReviewRating(0);
+      setHoverRating(0);
       refetch();
     } catch (error) {
       console.error("Error submitting review:", error);
@@ -133,7 +141,7 @@ const ProductDetail = () => {
     if (
       !address ||
       !city ||
-      !state ||
+      !stateField ||
       !zipCode ||
       !cardNumber ||
       !cardHolderName ||
@@ -147,7 +155,7 @@ const ProductDetail = () => {
     try {
       await axios.post(`http://localhost:3001/purchase/${productId}/guest`, {
         quantity: 1,
-        shippingInfo: { address, city, state, zipcode: zipCode },
+        shippingInfo: { address, city, state: stateField, zipcode: zipCode },
         paymentInfo: { cardNumber, cardHolderName, expiryDate, cvv },
       });
       alert(
@@ -180,6 +188,19 @@ const ProductDetail = () => {
     setShowGuestCheckout(false);
   };
 
+  // Helper function to render star ratings
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (i <= rating) {
+        stars.push(<FaStar key={i} color="#ffc107" />); // Filled star
+      } else {
+        stars.push(<FaRegStar key={i} color="#e4e5e9" />); // Outlined star
+      }
+    }
+    return stars;
+  };
+
   if (productLoading) return <p>Loading...</p>;
   if (productError) return <p>Error loading product details.</p>;
   if (!product) return <p>Product not found.</p>;
@@ -193,11 +214,15 @@ const ProductDetail = () => {
       />
       <h2>{product.name}</h2>
       <p>{product.description}</p>
-      <p>Price: ${product.price}</p>
-      <button onClick={handleAddToCart}>Add to Cart</button>
-      <button onClick={handleBuyNowClick} className="buy-now-button">
-        Buy Now
-      </button>
+      <p className="price">Price: ${product.price}</p>
+      <div className="buttons">
+        <button onClick={handleAddToCart} className="add-to-cart-button">
+          Add to Cart
+        </button>
+        <button onClick={handleBuyNowClick} className="buy-now-button">
+          Buy Now
+        </button>
+      </div>
 
       {/* Confirmation Modal for Authenticated Users */}
       {showConfirmModal && (
@@ -206,8 +231,17 @@ const ProductDetail = () => {
             <h3>Confirm Purchase</h3>
             <p>Total: ${totalPrice}</p>
             <p>Estimated Delivery Date: {deliveryDate}</p>
-            <button onClick={confirmPurchase}>Confirm</button>
-            <button onClick={() => setShowConfirmModal(false)}>Cancel</button>
+            <div className="modal-buttons">
+              <button onClick={confirmPurchase} className="confirm-button">
+                Confirm
+              </button>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="cancel-button"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -238,8 +272,8 @@ const ProductDetail = () => {
             <input
               type="text"
               placeholder="State"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
+              value={stateField}
+              onChange={(e) => setStateField(e.target.value)}
               required
             />
             <input
@@ -280,10 +314,16 @@ const ProductDetail = () => {
               required
             />
 
-            {checkoutError && <p style={{ color: "red" }}>{checkoutError}</p>}
+            {checkoutError && <p className="error-message">{checkoutError}</p>}
 
-            <button onClick={handleGuestCheckout}>Confirm Purchase</button>
-            <button onClick={cancelGuestCheckout}>Cancel</button>
+            <div className="modal-buttons">
+              <button onClick={handleGuestCheckout} className="confirm-button">
+                Confirm Purchase
+              </button>
+              <button onClick={cancelGuestCheckout} className="cancel-button">
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -291,41 +331,74 @@ const ProductDetail = () => {
       {/* Reviews Section */}
       <div className="reviews-section">
         <h3>Customer Reviews</h3>
-        <p>Average Rating: {averageRating.toFixed(1)} / 5</p>
-        {reviews.length > 0 ? (
-          reviews.map((review) => (
-            <div key={review._id} className="review-item">
-              <p>
-                <strong>Rating:</strong> {review.rating} / 5
-              </p>
-              <p>{review.comment}</p>
-            </div>
-          ))
-        ) : (
-          <p>No reviews yet.</p>
-        )}
+        <div className="average-rating">
+          <span className="rating-number">{averageRating.toFixed(1)}</span>
+          <div className="stars">{renderStars(Math.round(averageRating))}</div>
+          <span className="rating-text">out of 5</span>
+        </div>
+        <div className="reviews-list">
+          {reviews.length > 0 ? (
+            reviews.map((review) => (
+              <div key={review._id} className="review-item">
+                <div className="review-header">
+                  <div className="review-stars">{renderStars(review.rating)}</div>
+                  <span className="review-date">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="review-comment">{review.comment}</p>
+              </div>
+            ))
+          ) : (
+            <p>No reviews yet. Be the first to review!</p>
+          )}
+        </div>
       </div>
 
       {/* Review Form */}
       <form onSubmit={handleReviewSubmit} className="review-form">
         <h4>Leave a Review</h4>
+        {user ? (
+          <div className="rating-input">
+            <span>Your Rating:</span>
+            <div className="stars-input">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  onClick={() => setReviewRating(star)}
+                  onMouseOver={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  style={{ cursor: "pointer" }}
+                  aria-label={`${star} Star`}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") setReviewRating(star);
+                  }}
+                >
+                  {star <= (hoverRating || reviewRating) ? (
+                    <FaStar color="#ffc107" />
+                  ) : (
+                    <FaRegStar color="#e4e5e9" />
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p>Please log in to leave a review.</p>
+        )}
         <textarea
           placeholder="Write your review here..."
           value={reviewComment}
           onChange={(e) => setReviewComment(e.target.value)}
           required
+          disabled={!user}
         ></textarea>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          placeholder="Rating (1-5)"
-          value={reviewRating}
-          onChange={(e) => setReviewRating(Number(e.target.value))}
-          required
-        />
-        {reviewError && <p style={{ color: "red" }}>{reviewError}</p>}
-        <button type="submit">Submit Review</button>
+        {reviewError && <p className="error-message">{reviewError}</p>}
+        <button type="submit" disabled={!user}>
+          Submit Review
+        </button>
       </form>
     </div>
   );
