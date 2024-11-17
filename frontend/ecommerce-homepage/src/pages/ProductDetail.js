@@ -35,6 +35,10 @@ const ProductDetail = () => {
   const [deliveryDate, setDeliveryDate] = useState("");
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // New States for Size and Quantity
+  const [size, setsize] = useState("");
+  const [quantity, setQuantity] = useState(1);
+
   // Guest checkout information states
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
@@ -46,7 +50,7 @@ const ProductDetail = () => {
   const [cvv, setCvv] = useState("");
   const [checkoutError, setCheckoutError] = useState(null);
 
-  // Generate delivery date and total price on component mount
+  // Generate delivery date and total price on component mount or when quantity changes
   useEffect(() => {
     const generateRandomDeliveryDate = () => {
       const today = new Date();
@@ -58,12 +62,23 @@ const ProductDetail = () => {
     setDeliveryDate(generateRandomDeliveryDate());
 
     if (product) {
-      setTotalPrice(product.price); // Set total price based on product price
+      setTotalPrice(product.price * quantity); // Set total price based on product price and quantity
     }
-  }, [product]);
+  }, [product, quantity]);
+
+  // Update total price when quantity changes
+  useEffect(() => {
+    if (product) {
+      setTotalPrice(product.price * quantity);
+    }
+  }, [quantity, product]);
 
   const handleAddToCart = () => {
-    addToCart(product);
+    if (!size) {
+      alert("Please select a size before adding to cart.");
+      return;
+    }
+    addToCart({ ...product, size, quantity });
     alert("Added to cart!");
   };
 
@@ -106,6 +121,10 @@ const ProductDetail = () => {
   };
 
   const handleBuyNowClick = () => {
+    if (!size) {
+      alert("Please select a size before purchasing.");
+      return;
+    }
     if (user) {
       setShowConfirmModal(true);
     } else {
@@ -119,7 +138,10 @@ const ProductDetail = () => {
       try {
         await axios.post(
           `http://localhost:3001/purchase/${productId}`,
-          {},
+          {
+            size,
+            quantity,
+          },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -154,7 +176,8 @@ const ProductDetail = () => {
 
     try {
       await axios.post(`http://localhost:3001/purchase/${productId}/guest`, {
-        quantity: 1,
+        quantity,
+        size,
         shippingInfo: { address, city, state: stateField, zipcode: zipCode },
         paymentInfo: { cardNumber, cardHolderName, expiryDate, cvv },
       });
@@ -215,6 +238,38 @@ const ProductDetail = () => {
       <h2>{product.name}</h2>
       <p>{product.description}</p>
       <p className="price">Price: ${product.price}</p>
+
+      {/* Size Selection */}
+      {product.sizes && product.sizes.length > 0 && (
+        <div className="size-selection">
+          <label htmlFor="size">Size:</label>
+          <select
+            id="size"
+            value={size}
+            onChange={(e) => setsize(e.target.value)}
+          >
+            <option value="">Select Size</option>
+            {product.sizes.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Quantity Selection */}
+      <div className="quantity-selection">
+        <label htmlFor="quantity">Quantity:</label>
+        <input
+          type="number"
+          id="quantity"
+          min="1"
+          value={quantity}
+          onChange={(e) => setQuantity(Number(e.target.value))}
+        />
+      </div>
+
       <div className="buttons">
         <button onClick={handleAddToCart} className="add-to-cart-button">
           Add to Cart
@@ -231,6 +286,8 @@ const ProductDetail = () => {
             <h3>Confirm Purchase</h3>
             <p>Total: ${totalPrice}</p>
             <p>Estimated Delivery Date: {deliveryDate}</p>
+            <p>Size: {size}</p>
+            <p>Quantity: {quantity}</p>
             <div className="modal-buttons">
               <button onClick={confirmPurchase} className="confirm-button">
                 Confirm
@@ -253,6 +310,8 @@ const ProductDetail = () => {
             <h3>Guest Checkout</h3>
             <p>Total: ${totalPrice}</p>
             <p>Estimated Delivery Date: {deliveryDate}</p>
+            <p>Size: {size}</p>
+            <p>Quantity: {quantity}</p>
 
             <h4>Shipping Information</h4>
             <input

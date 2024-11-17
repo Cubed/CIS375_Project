@@ -1,3 +1,5 @@
+/* src/components/ProductDetail.css */
+
 /* General container styling */
 .product-detail {
   max-width: 800px;
@@ -33,8 +35,58 @@
   color: #555;
 }
 
-/* Add to Cart button */
-button {
+.price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Size Selection */
+.size-selection {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.size-selection label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.size-selection select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+/* Quantity Selection */
+.quantity-selection {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.quantity-selection label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.quantity-selection input {
+  width: 60px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+/* Buttons */
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.add-to-cart-button {
   background-color: #4caf50;
   color: white;
   padding: 10px 15px;
@@ -45,93 +97,9 @@ button {
   transition: background-color 0.3s ease;
 }
 
-button:hover {
+.add-to-cart-button:hover {
   background-color: #45a049;
 }
-
-/* Reviews section */
-.reviews-section {
-  margin-top: 30px;
-}
-
-.reviews-section h3 {
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 15px;
-}
-
-.reviews-section p {
-  font-size: 1rem;
-  color: #777;
-}
-
-.review-item {
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-  margin-bottom: 15px;
-}
-
-.review-item p {
-  margin: 5px 0;
-}
-
-.review-item strong {
-  color: #333;
-}
-
-/* Review form */
-.review-form {
-  margin-top: 20px;
-  background-color: #ffffff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.review-form h4 {
-  font-size: 1.3rem;
-  margin-bottom: 10px;
-}
-
-.review-form textarea,
-.review-form input[type="number"] {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 1rem;
-}
-
-.review-form textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.review-form button {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 15px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.review-form button:hover {
-  background-color: #0069d9;
-}
-
-.review-form p {
-  margin-top: 10px;
-  color: #d9534f;
-  font-size: 0.9rem;
-}
-
-/* src/components/ProductDetail.css */
 
 .buy-now-button {
   background-color: #007bff; /* Blue color */
@@ -139,7 +107,6 @@ button:hover {
   border: none;
   padding: 10px 20px;
   font-size: 16px;
-  margin-top: 10px;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s ease;
@@ -149,6 +116,7 @@ button:hover {
   background-color: #0056b3; /* Darker blue on hover */
 }
 
+/* Confirmation and Guest Checkout Modals */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -179,27 +147,38 @@ button:hover {
   margin: 10px 0;
 }
 
-.modal-content button {
-  margin: 5px;
-  padding: 8px 16px;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
 }
 
-.modal-content button:first-child {
+.confirm-button {
   background-color: #28a745; /* Confirm button in green */
   color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.modal-content button:last-child {
+.confirm-button:hover {
+  background-color: #218838;
+}
+
+.cancel-button {
   background-color: #dc3545; /* Cancel button in red */
   color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-/* src/components/ProductDetail.css */
-
-/* ... [Existing styles] */
+.cancel-button:hover {
+  background-color: #c82333;
+}
 
 /* Reviews section */
 .reviews-section {
@@ -393,5 +372,20 @@ button:hover {
     margin-right: 0;
     margin-bottom: 5px;
   }
-}
 
+  .size-selection,
+  .quantity-selection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .size-selection label,
+  .quantity-selection label {
+    margin-bottom: 5px;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
