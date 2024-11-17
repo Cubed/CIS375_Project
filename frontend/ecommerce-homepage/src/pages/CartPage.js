@@ -21,10 +21,7 @@ const CartPage = () => {
   const handleBuyClick = async () => {
     try {
       await purchaseCart();
-      // Optionally, navigate to a success page or display a success message
-      // For example:
-      // navigate("/purchase-success");
-      // Or, keep the user on the same page and display the success message
+      // No navigation; rely on purchaseSuccess state to display the message
     } catch (error) {
       // The error is already handled in the context
       // You can optionally handle additional UI updates here
@@ -32,6 +29,31 @@ const CartPage = () => {
   };
 
   if (loading) return <p>Loading cart...</p>;
+
+  // If purchase was successful and cart is empty, display the success message
+  if (purchaseSuccess && (!cartItems || cartItems.length === 0)) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <h1>Purchase Successful!</h1>
+        <p>Thank you for your order.</p>
+        <button
+          onClick={() => navigate("/")}
+          style={{
+            padding: "10px 20px",
+            fontSize: "16px",
+            cursor: "pointer",
+            backgroundColor: "#28a745",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            marginTop: "20px",
+          }}
+        >
+          Continue Shopping
+        </button>
+      </div>
+    );
+  }
 
   // Check if the cart or products array is empty
   if (!cartItems || cartItems.length === 0) {
@@ -41,21 +63,6 @@ const CartPage = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h1>Your Cart</h1>
-
-      {/* Display purchase success message */}
-      {purchaseSuccess && (
-        <div
-          style={{
-            padding: "10px",
-            backgroundColor: "#d4edda",
-            color: "#155724",
-            marginBottom: "20px",
-            borderRadius: "5px",
-          }}
-        >
-          <p>Purchase successful! Thank you for your order.</p>
-        </div>
-      )}
 
       {/* Display purchase error message */}
       {purchaseError && (
@@ -125,7 +132,11 @@ const CartPage = () => {
             >
               <button
                 onClick={() =>
-                  updateCartQuantity(item.productId, item.size, item.quantity - 1)
+                  updateCartQuantity(
+                    item.productId,
+                    item.size,
+                    item.quantity - 1
+                  )
                 }
                 disabled={item.quantity <= 1}
                 style={{
@@ -138,10 +149,16 @@ const CartPage = () => {
               >
                 -
               </button>
-              <span style={{ margin: "0 15px" }}>Quantity: {item.quantity}</span>
+              <span style={{ margin: "0 15px" }}>
+                Quantity: {item.quantity}
+              </span>
               <button
                 onClick={() =>
-                  updateCartQuantity(item.productId, item.size, item.quantity + 1)
+                  updateCartQuantity(
+                    item.productId,
+                    item.size,
+                    item.quantity + 1
+                  )
                 }
                 style={{
                   padding: "5px 10px",

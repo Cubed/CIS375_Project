@@ -57,15 +57,15 @@ export const CartProvider = ({ children }) => {
       let products = [];
 
       if (token) {
-        // Fetch cart object for authenticated users
+        // Fetch cart array for authenticated users
         const cartResponse = await axios.get("http://localhost:3001/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const cart = cartResponse.data;
 
-        // Ensure cart has a products array
-        if (cart && Array.isArray(cart.products)) {
-          products = cart.products;
+        // Since the backend returns an array directly, use it as products
+        if (Array.isArray(cart)) {
+          products = cart;
         }
       } else {
         // Use localCart for guest users
@@ -310,14 +310,14 @@ export const CartProvider = ({ children }) => {
   
       const cartData = cartResponse.data;
   
-      // Validate that the response has products and the required fields
-      if (!cartData || !Array.isArray(cartData.products) || cartData.products.length === 0) {
+      // Validate that the response is an array and has items
+      if (!cartData || !Array.isArray(cartData) || cartData.length === 0) {
         throw new Error("Cart is empty or missing required data.");
       }
   
       // Create an array of purchase promises for each product in the cart
       const purchasePromises = cartData.map((item) => {
-        console.log(item)
+        console.log(item);
         if (!item.size || !item.quantity) {
           throw new Error(
             `Invalid cart item: Product ID ${item.productId} is missing size or quantity.`
@@ -327,7 +327,7 @@ export const CartProvider = ({ children }) => {
         return axios.post(
           `http://localhost:3001/purchase/${item.productId}`,
           {
-            size: cartData.size, // Fetch the size from cart data
+            size: item.size, // Corrected to fetch size from the current item
             quantity: item.quantity,
           },
           {
