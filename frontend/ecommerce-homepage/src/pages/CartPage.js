@@ -18,13 +18,22 @@ const CartPage = () => {
   } = useCart();
   const navigate = useNavigate();
 
-  const handleBuyClick = async () => {
-    try {
-      await purchaseCart();
-      // No navigation; rely on purchaseSuccess state to display the message
-    } catch (error) {
-      // The error is already handled in the context
-      // You can optionally handle additional UI updates here
+
+  // Handle navigation to checkout or guest checkout
+  const handleBuyClick = () => {
+    if (!cartItems || cartItems.length === 0) {
+      alert("Your cart is empty. Add some items before checking out.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      // Navigate to the checkout page for authenticated users
+      navigate("/checkout");
+    } else {
+      // Navigate to the guest checkout page
+      navigate("/checkout", { state: { isGuest: true } });
     }
   };
 
