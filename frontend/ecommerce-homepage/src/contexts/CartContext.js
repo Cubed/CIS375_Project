@@ -54,13 +54,7 @@ export const CartProvider = ({ children }) => {
   const fetchCartWithDetails = useCallback(async () => {
     setIsFetching(true);
     try {
-      const cart = token
-        ? await axios
-          .get("http://localhost:3001/cart", {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((res) => res.data)
-        : localCart;
+      let products = [];
 
       if (token) {
         // Fetch cart array for authenticated users
@@ -118,15 +112,31 @@ export const CartProvider = ({ children }) => {
   );
 
   // Calculate the cart total based on cart items
-  const calculateCartTotal = async (items) => {
-    const total = items.reduce((sum, item) => {
-      const price = item.productDetail?.price || 0; // Default to 0 if price is missing
-      const quantity = item.quantity || 0; // Default to 0 if quantity is missing
-      return sum + price * quantity;
-    }, 0);
-    setCartTotal(total);
-
-  };
+  const calculateCartTotal = useCallback(
+    async (items) => {
+      if (user && token) {
+        // For authenticated users, fetch total from the backend
+        try {
+          const response = await axios.get("http://localhost:3001/cart/total", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setCartTotal(response.data.total || 0);
+        } catch (error) {
+          console.error("Error fetching cart total:", error);
+          setCartTotal(0);
+        }
+      } else {
+        // For guest users, calculate total locally
+        const total = items.reduce((sum, item) => {
+          const price = item.productDetail?.price || 0;
+          const quantity = item.quantity || 0;
+          return sum + price * quantity;
+        }, 0);
+        setCartTotal(total);
+      }
+    },
+    [user, token]
+  );
 
   // Update the cart total whenever cart items change
   useEffect(() => {
@@ -152,13 +162,16 @@ export const CartProvider = ({ children }) => {
       const existingItem = localCart.find(
         (item) => item.productId === productId && item.size === size
       );
-      const updatedCart = existingItem
-        ? localCart.map((item) =>
-          item.productId === product._id
-            ? { ...item, quantity: item.quantity + 1 }
+      let updatedCart;
+      if (existingItem) {
+        updatedCart = localCart.map((item) =>
+          item.productId === productId && item.size === size
+            ? { ...item, quantity: item.quantity + quantity }
             : item
-        )
-        : [...localCart, { productId: product._id, quantity: 1 }];
+        );
+      } else {
+        updatedCart = [...localCart, { productId, size, quantity }];
+      }
 
       setLocalCart(updatedCart);
 
@@ -224,9 +237,17 @@ export const CartProvider = ({ children }) => {
       // For authenticated users, update quantity via server
       try {
         const payload = { size, quantity };
+<<<<<<< HEAD
         await axios.put(`http://localhost:3001/cart/${productId}`, payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
+=======
+        await axios.put(
+          `http://localhost:3001/cart/${productId}`,
+          payload,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+>>>>>>> parent of 0cf8e4a (Fix cart total issue)
         await fetchCartWithDetails();
       } catch (error) {
         console.error("Error updating cart quantity:", error);
@@ -282,24 +303,42 @@ export const CartProvider = ({ children }) => {
     if (!token) {
       throw new Error("User is not authenticated. Please log in to proceed.");
     }
+<<<<<<< HEAD
 
     setPurchaseLoading(true);
     setPurchaseError(null);
     setPurchaseSuccess(false);
 
+=======
+  
+    setPurchaseLoading(true);
+    setPurchaseError(null);
+    setPurchaseSuccess(false);
+  
+>>>>>>> parent of 0cf8e4a (Fix cart total issue)
     try {
       // Fetch the cart data from the backend
       const cartResponse = await axios.get("http://localhost:3001/cart", {
         headers: { Authorization: `Bearer ${token}` },
       });
+<<<<<<< HEAD
 
       const cartData = cartResponse.data;
 
+=======
+  
+      const cartData = cartResponse.data;
+  
+>>>>>>> parent of 0cf8e4a (Fix cart total issue)
       // Validate that the response is an array and has items
       if (!cartData || !Array.isArray(cartData) || cartData.length === 0) {
         throw new Error("Cart is empty or missing required data.");
       }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> parent of 0cf8e4a (Fix cart total issue)
       // Create an array of purchase promises for each product in the cart
       const purchasePromises = cartData.map((item) => {
         console.log(item);
@@ -308,7 +347,11 @@ export const CartProvider = ({ children }) => {
             `Invalid cart item: Product ID ${item.productId} is missing size or quantity.`
           );
         }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> parent of 0cf8e4a (Fix cart total issue)
         return axios.post(
           `http://localhost:3001/purchase/${item.productId}`,
           {
@@ -320,6 +363,7 @@ export const CartProvider = ({ children }) => {
           }
         );
       });
+<<<<<<< HEAD
 
       // Execute all purchase requests concurrently
       await Promise.all(purchasePromises);
@@ -327,14 +371,29 @@ export const CartProvider = ({ children }) => {
       // Clear the cart after successful purchases
       await clearCart();
 
+=======
+  
+      // Execute all purchase requests concurrently
+      await Promise.all(purchasePromises);
+  
+      // Clear the cart after successful purchases
+      await clearCart();
+  
+>>>>>>> parent of 0cf8e4a (Fix cart total issue)
       setPurchaseSuccess(true);
     } catch (error) {
       console.error("Error purchasing cart items:", error);
       setPurchaseError(
         error.response?.data?.errors ||
+<<<<<<< HEAD
           error.response?.data?.message ||
           error.message ||
           "An error occurred during the purchase."
+=======
+        error.response?.data?.message ||
+        error.message ||
+        "An error occurred during the purchase."
+>>>>>>> parent of 0cf8e4a (Fix cart total issue)
       );
     } finally {
       setPurchaseLoading(false);
