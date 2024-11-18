@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
+import "../pages/CheckoutPage.css";
 
 const CheckoutPage = () => {
   const location = useLocation();
