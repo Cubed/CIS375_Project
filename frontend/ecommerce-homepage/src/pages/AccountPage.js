@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import './AccountPage.css';
+
 
 const AccountPage = () => {
   const { user, updateAccount } = useAuth();
@@ -79,10 +81,12 @@ const AccountPage = () => {
   };
 
   return (
-    <div>
-      <h2>Account Information</h2>
-      {message && <p>{message}</p>}
-      <form onSubmit={handleSubmit}>
+    <div className="account-container">
+      <form className="account-form" onSubmit={handleSubmit}>
+        <h2>Account Information</h2>
+        {message && <p className="message">{message}</p>}
+        {loading && <p className="message">Updating...</p>}
+        
         <label>
           Username:
           <input
@@ -101,7 +105,7 @@ const AccountPage = () => {
             onChange={handleChange}
           />
         </label>
-
+        
         <h3>Shipping Information</h3>
         <label>
           Address:
@@ -139,7 +143,7 @@ const AccountPage = () => {
             onChange={handleChange}
           />
         </label>
-
+        
         <h3>Payment Information</h3>
         <label>
           Card Number:
@@ -178,13 +182,14 @@ const AccountPage = () => {
             onChange={handleChange}
           />
         </label>
-
-        <button type="submit" disabled={loading}>
+        
+        <button type="submit" className="submit-button" disabled={loading}>
           {loading ? "Updating..." : "Update Account"}
         </button>
       </form>
     </div>
   );
+  
 };
 
 export default AccountPage;
