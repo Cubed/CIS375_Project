@@ -33,6 +33,37 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
+  // Register function
+  const register = async (userData) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/account/register",
+        userData
+      );
+      return { success: true, message: response.data.message };
+    } catch (error) {
+      console.error("Registration error:", error);
+
+      // Handle validation errors
+      if (error.response && error.response.status === 400) {
+        if (error.response.data.errors) {
+          // Format errors for specific fields
+          const fieldErrors = {};
+          error.response.data.errors.forEach((err) => {
+            fieldErrors[err.param] = err.msg;
+          });
+          return { success: false, errors: fieldErrors };
+        }
+        // Handle case where user already exists
+        if (error.response.data === "User with this email already exists.") {
+          return { success: false, message: error.response.data };
+        }
+      }
+
+      // Generic error message for unexpected issues
+      return { success: false, message: "An unexpected error occurred." };
+    }
+  };
   // Login function
   const login = async (email, password) => {
     setLoading(true);
@@ -108,7 +139,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, updateAccount, loading }}
+      value={{ user, register, login, logout, updateAccount, loading }}
     >
       {children}
     </AuthContext.Provider>
