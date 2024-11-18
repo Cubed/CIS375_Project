@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
-import "./CheckoutPage.css";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -62,10 +61,31 @@ const CheckoutPage = () => {
       if (user) {
         // Authenticated user purchase
         const token = localStorage.getItem("token");
+
+        // Loop through cart items and send the purchase request for each item
         for (const item of cartItems) {
+          if (!item.size || !item.quantity) {
+            console.error("Missing size or quantity in cart item:", item);
+            alert(
+              `Error: Item "${
+                item.productDetail?.name || item.productId
+              }" is missing size or quantity.`
+            );
+            return;
+          }
+
+          console.log("Sending Payload for Authenticated Purchase:", {
+            productId: item.productId,
+            size: item.size,
+            quantity: item.quantity,
+          });
+
           await axios.post(
             `http://localhost:3001/purchase/${item.productId}`,
-            {},
+            {
+              size: item.size,
+              quantity: item.quantity,
+            },
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -75,6 +95,13 @@ const CheckoutPage = () => {
         }
       } else if (productId) {
         // Guest checkout for a single product
+        console.log("Sending Payload for Guest Checkout:", {
+          productId,
+          quantity,
+          shippingInfo: { address, city, state, zipcode: zipCode },
+          paymentInfo: { cardNumber, cardHolderName, expiryDate, cvv },
+        });
+
         await axios.post(`http://localhost:3001/purchase/${productId}/guest`, {
           quantity,
           shippingInfo: { address, city, state, zipcode: zipCode },
@@ -85,11 +112,18 @@ const CheckoutPage = () => {
       alert(
         `Purchase confirmed! Your order will be delivered on ${deliveryDate}.`
       );
-      clearCart();
-      navigate("/");
+      clearCart(); // Clear the cart after successful purchase
+      navigate("/"); // Redirect to homepage
     } catch (error) {
       console.error("Error confirming purchase:", error);
-      alert("There was an error processing your purchase. Please try again.");
+      if (error.response?.data?.errors) {
+        const errorMessages = error.response.data.errors
+          .map((err) => err.msg)
+          .join(", ");
+        alert(`Error: ${errorMessages}`);
+      } else {
+        alert("There was an error processing your purchase. Please try again.");
+      }
     }
   };
 
