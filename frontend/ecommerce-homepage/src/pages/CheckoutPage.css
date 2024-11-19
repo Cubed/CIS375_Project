@@ -1,0 +1,121 @@
+.checkout-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Ensure full height coverage */
+  width: 100%; /* Prevent horizontal overflow */
+  padding: 20px; /* Add padding for responsive design */
+  background-color: #0a0a0a; /* Dark background for contrast */
+  color: #f5f5f5; /* Light text for readability */
+  box-sizing: border-box;
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+}
+
+.checkout-form {
+  background-color: #1c1c1c; /* Form background */
+  padding: 30px; /* Add spacing inside the form */
+  border-radius: 12px; /* Rounded corners for modern look */
+  width: 90%; /* Flexible width for smaller screens */
+  max-width: 400px; /* Restrict maximum width */
+  text-align: center; /* Center-align text */
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5); /* Optional shadow for depth */
+  box-sizing: border-box;
+}
+
+.checkout-form h1,
+.checkout-form h2,
+.checkout-form h3 {
+  margin: 10px 0;
+  color: #f5f5f5;
+}
+
+.checkout-form input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background-color: #333; /* Match autofill background */
+  color: #f5f5f5;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.checkout-form input::placeholder {
+  color: #888;
+}
+
+/* Autofill styling for consistent appearance */
+.checkout-form input:-webkit-autofill,
+.checkout-form input:-webkit-autofill:focus,
+.checkout-form input:-webkit-autofill:hover,
+.checkout-form input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #333 inset; /* Match input background */
+  -webkit-text-fill-color: #f5f5f5; /* Match input text color */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.checkout-button {
+  display: inline-block;
+  padding: 0.35em 1.2em;
+  border: 0.1em solid #ffffff;
+  margin: 0 0.3em 0.3em 0;
+  border-radius: 0.12em;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+  text-align: center;
+  transition: all 0.2s;
+  background: none; /* Ensure no default background */
+}
+
+.checkout-button:hover {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+@media all and (max-width: 30em) {
+  .checkout-button {
+    display: block;
+    margin: 0.4em auto;
+  }
+}
+
+.checkout-form .error {
+  color: #ff4d4d; /* Red for errors */
+  font-size: 14px;
+  text-align: left;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .checkout-container {
+    padding: 10px;
+  }
+
+  .checkout-form {
+    padding: 20px;
+  }
+
+  .checkout-form input {
+    font-size: 14px;
+  }
+
+  .checkout-form .confirm-button {
+    font-size: 14px;
+  }
+}
+
+@media (max-height: 500px) {
+  .checkout-container {
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+}
