@@ -197,14 +197,6 @@ function validateLuhn(cardNumber) {
 
 // Entitlement System
 
-/*
-Payload:
-{
-	"size":"S",
-	"quantity":1
-}
-*/
-
 
 // Endpoint to simulate product purchase (for authenticated users)
 app.post(
@@ -1149,8 +1141,12 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { quantity, shippingInfo, paymentInfo } = req.body;
+    const { quantity, shippingInfo, paymentInfo, size } = req.body;
     try {
+
+      //First of all, we need to actually use paymentInfo and verify the paymentInfo is valid, just like in the register endpoint.
+
+
       // Check if product exists
       const product = await Product.findById(productId);
       if (!product) return res.status(404).send("Product not found.");
@@ -1178,6 +1174,7 @@ app.post(
           products: order.products,
           total: order.total,
           shippingInfo: order.shippingInfo,
+          size: order.size
         },
       });
     } catch (error) {
