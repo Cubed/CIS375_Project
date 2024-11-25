@@ -83,19 +83,25 @@ const productSchema = new mongoose.Schema({
   rating: Number,
   tags: { type: [String], required: true }, // Required
   imageUrl: { type: String, required: true }, // Required
-  sizes: { 
-    type: [String], 
-    enum: ["XS", "S", "M", "L", "XL", "XXL"], 
-    required: true 
+  sizes: {
+    type: [String],
+    enum: ["XS", "S", "M", "L", "XL", "XXL"],
+    required: true,
   }, // Array of clothing sizes with predefined options
-  creationDate: { type: Date, default: Date.now } // Automatically set creation date
+  creationDate: { type: Date, default: Date.now }, // Automatically set creation date
 });
 const Product = mongoose.model("Product", productSchema);
 
 // Cart Schema
 const cartSchema = new mongoose.Schema({
   userId: mongoose.Schema.Types.ObjectId,
-  products: [{ productId: mongoose.Schema.Types.ObjectId, quantity: Number, size: String }],
+  products: [
+    {
+      productId: mongoose.Schema.Types.ObjectId,
+      quantity: Number,
+      size: String,
+    },
+  ],
 });
 const Cart = mongoose.model("Cart", cartSchema);
 
@@ -103,10 +109,10 @@ const Cart = mongoose.model("Cart", cartSchema);
 const entitlementSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
-  size: { 
-    type: String, 
-    enum: ["XS", "S", "M", "L", "XL", "XXL"], 
-    required: true 
+  size: {
+    type: String,
+    enum: ["XS", "S", "M", "L", "XL", "XXL"],
+    required: true,
   }, // Added size field
 });
 const Entitlement = mongoose.model("Entitlement", entitlementSchema);
@@ -131,10 +137,10 @@ const orderSchema = new mongoose.Schema({
     zipcode: String,
     city: String,
   },
-  size: { 
-    type: String, 
-    enum: ["XS", "S", "M", "L", "XL", "XXL"], 
-    required: true 
+  size: {
+    type: String,
+    enum: ["XS", "S", "M", "L", "XL", "XXL"],
+    required: true,
   }, // Array of clothing sizes with predefined options
 });
 
@@ -205,7 +211,6 @@ Payload:
 }
 */
 
-
 // Endpoint to simulate product purchase (for authenticated users)
 app.post(
   "/purchase/:productId",
@@ -236,14 +241,20 @@ app.post(
       const user = await User.findById(req.user.id);
       // Check if the requested size is available for the product
       if (!product.sizes.includes(size)) {
-        return res.status(400).send(`Size ${size} is not available for this product.`);
+        return res
+          .status(400)
+          .send(`Size ${size} is not available for this product.`);
       }
 
       // Calculate total
       const total = product.price * quantity;
 
       // Create entitlement if user purchases the product
-      const entitlement = new Entitlement({ userId: req.user.id, productId, size });
+      const entitlement = new Entitlement({
+        userId: req.user.id,
+        productId,
+        size,
+      });
       await entitlement.save();
 
       // Create a new order
@@ -252,18 +263,22 @@ app.post(
         products: [{ productId, quantity, size }],
         total,
         shippingInfo: user.shippingInfo,
-        size
+        size,
       });
       await order.save();
 
-      res.status(200).send({ message: "Product purchased and entitlement created", entitlement });
+      res
+        .status(200)
+        .send({
+          message: "Product purchased and entitlement created",
+          entitlement,
+        });
     } catch (error) {
       console.error("Error purchasing product:", error);
       res.status(500).send("Internal server error.");
     }
   }
 );
-
 
 // View Products with Recommendations
 app.get("/products", async (req, res) => {
@@ -404,7 +419,7 @@ app.post(
       const productData = {
         ...req.body,
         rating: 0, // Set initial rating to 0
-        creationDate: new Date() // Explicitly set creationDate (optional)
+        creationDate: new Date(), // Explicitly set creationDate (optional)
       };
       const product = new Product(productData);
       await product.save();
@@ -416,8 +431,6 @@ app.post(
   }
 );
 
-
-// Update a product (Admin only)
 app.put(
   "/admin/products/:id",
   authenticateToken,
@@ -435,13 +448,21 @@ app.put(
       .optional()
       .isString()
       .withMessage("Each tag must be a string."),
+    body("sizes")
+      .optional()
+      .isArray({ min: 1 })
+      .withMessage("At least one size is required."),
+    body("sizes.*")
+      .optional()
+      .isString()
+      .withMessage("Each size must be a string."),
     body("imageUrl")
       .optional()
       .isURL()
       .withMessage("A valid image URL is required."),
     body("description")
       .optional()
-      .isURL()
+      .isString()
       .withMessage("A valid product description is required."),
   ],
   async (req, res) => {
@@ -535,8 +556,7 @@ app.post(
         );
         if (item) {
           item.quantity += quantity;
-        } 
-        else {
+        } else {
           cart.products.push({ productId, quantity, size });
         }
       } else {
@@ -1167,7 +1187,7 @@ app.post(
         products: [{ productId, quantity }],
         total,
         shippingInfo,
-        size
+        size,
       });
       await order.save();
 
@@ -1186,7 +1206,6 @@ app.post(
     }
   }
 );
-
 
 // Start the Server
 app.listen(PORT, () => {
