@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
+import "../pages/CheckoutPage.css";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -128,74 +129,86 @@ const CheckoutPage = () => {
   };
 
   return (
-    <div>
-      <h1>Checkout</h1>
-      {!user && (
-        <>
-          <h2>Shipping Information</h2>
-          <input
-            type="text"
-            placeholder="Address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="City"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="State"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Zip Code"
-            value={zipCode}
-            onChange={(e) => setZipCode(e.target.value)}
-            required
-          />
+    <div className="checkout-container">
+      <div className="checkout-form">
+        <h1>Checkout</h1>
+        {!user && (
+          <>
+            <h2>Shipping Information</h2>
+            <input
+              type="text"
+              placeholder="Address"
+              className="checkout-input"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="City"
+              className="checkout-input"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="State"
+              className="checkout-input"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Zip Code"
+              className="checkout-input"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              required
+            />
 
-          <h2>Payment Information</h2>
-          <input
-            type="text"
-            placeholder="Card Number"
-            value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Card Holder Name"
-            value={cardHolderName}
-            onChange={(e) => setCardHolderName(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Expiry Date (MM/YY)"
-            value={expiryDate}
-            onChange={(e) => setExpiryDate(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="CVV"
-            value={cvv}
-            onChange={(e) => setCvv(e.target.value)}
-            required
-          />
-        </>
-      )}
+            <h2>Payment Information</h2>
+            <input
+              type="text"
+              placeholder="Card Number"
+              className="checkout-input"
+              value={cardNumber}
+              onChange={(e) => setCardNumber(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Card Holder Name"
+              className="checkout-input"
+              value={cardHolderName}
+              onChange={(e) => setCardHolderName(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Expiry Date (MM/YY)"
+              className="checkout-input"
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="CVV"
+              className="checkout-input"
+              value={cvv}
+              onChange={(e) => setCvv(e.target.value)}
+              required
+            />
+          </>
+        )}
 
-      <h3>Estimated Delivery Date: {deliveryDate}</h3>
-      <button onClick={handleConfirmPurchase}>Confirm Purchase</button>
+        <h3>Estimated Delivery Date: {deliveryDate}</h3>
+        <button className="checkout-button" onClick={handleConfirmPurchase}>
+          Confirm Purchase
+        </button>
+      </div>
     </div>
   );
 };

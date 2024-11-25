@@ -1,15 +1,44 @@
 import React, { useState } from "react";
 import ProductCard from "../components/ProductCard";
 import "../App.css";
+import "./AdminPage.css";
 import { useProduct } from "../contexts/ProductContext"; // Import ProductContext
+import { useAuth } from "../contexts/AuthContext"; // Import AuthContext
+import axios from "axios";
 
 const HomePage = () => {
   const { useProducts } = useProduct(); // Get the hook from ProductContext
   const { data: products = [], isLoading, error } = useProducts(); // Provide a default empty array for products
-
+  const { user } = useAuth(); // Get current user
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [sortOrder, setSortOrder] = useState("newest"); // Added sortOrder state
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: "",
+    description: "",
+    imageUrl: "",
+    tags: [],
+    sizes: [],
+  }); // State for new product form
+
+  // Handler for adding a new product
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token"); // Get the token
+      await axios.post("http://localhost:3001/admin/products", newProduct, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      alert("Product added successfully");
+      window.location.reload(); // Reload the page to fetch updated products
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert(error.response?.data?.message || "Error adding product");
+    }
+  };
 
   if (isLoading) return <p>Loading products...</p>;
   if (error) return <p className="error-message">Error loading products</p>;
@@ -104,7 +133,7 @@ const HomePage = () => {
             <label>Sort by:</label>
             <select
               value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)} // Update sortOrder state
+              onChange={(e) => setSortOrder(e.target.value)}
             >
               <option value="newest">Newest First</option>
               <option value="hightoLow">Price: High to Low</option>
@@ -112,9 +141,103 @@ const HomePage = () => {
             </select>
           </div>
         </div>
+
+        {/* Admin Add Product Form */}
+        {user?.isAdmin && (
+          <form className="add-product-form" onSubmit={handleAddProduct}>
+            <h2>Add Product</h2>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Product Name"
+                value={newProduct.name}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, name: e.target.value })
+                }
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="number"
+                placeholder="Price"
+                value={newProduct.price}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, price: e.target.value })
+                }
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <textarea
+                placeholder="Description"
+                value={newProduct.description}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, description: e.target.value })
+                }
+                required
+                className="form-textarea"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Image URL"
+                value={newProduct.imageUrl}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, imageUrl: e.target.value })
+                }
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Tags (comma-separated)"
+                value={newProduct.tags}
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    tags: e.target.value.split(",").map((tag) => tag.trim()),
+                  })
+                }
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Sizes (comma-separated)"
+                value={newProduct.sizes}
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    sizes: e.target.value.split(",").map((size) => size.trim()),
+                  })
+                }
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="btn-primary">
+                Add Product
+              </button>
+            </div>
+          </form>
+        )}
+
         <div className="product-grid">
           {sortedProducts.map((product) => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard
+              key={product._id}
+              product={product}
+              isAdmin={user?.isAdmin}
+            />
           ))}
         </div>
       </main>

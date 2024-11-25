@@ -1,115 +1,159 @@
-/* LoginPage.css */
+/* Placeholder Text Styling */
+.login-page .form-input::placeholder {
+  color: #ffffff80; /* Replace with your desired placeholder color */
+  font-style: italic; /* Optional: Add italic styling */
+  opacity: 1; /* Ensure the color is fully visible */
+  text-align: left; /* Align placeholder text to the left */
+  margin-left: 0; /* Remove any left margin if added elsewhere */
+  padding-left: 0; /* Remove any extra padding affecting alignment */
+}
 
-/* General Styles */
-body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #ece9e6, #ffffff);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Center the container */
+.login-container {
+  display: flex; /* Enables flexbox */
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  height: 100vh; /* Ensures the container spans the full height of the viewport */
+  background-color: #1b1b1b; /* Optional: Matches the page background */
+}
+/* Login Page Container */
+.login-page {
+  background-color: #2c3e50;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  animation: fadeIn 0.5s ease-in-out;
+  display: flex; /* Enable flexbox */
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Horizontally center the items */
+  justify-content: center; /* Vertically center the items */
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
-  
-  /* Login Page Container */
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Form Group */
+.login-page .form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Form Labels */
+.login-page .form-label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffffff; /* Replace with your desired color */
+  margin-bottom: 5px; /* Space between label and input */
+}
+
+/* Form Title */
+.login-page .form-title {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* Error Message */
+.login-page .error-message {
+  color: #d9534f;
+  background-color: #f8d7da;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+/* Input Fields */
+.login-page .form-input {
+  box-sizing: border-box; /* Include padding and border in width calculation */
+  width: 100%;
+  max-width: 350px; /* Optionally, limit the width to prevent stretching */
+  padding: 12px 40px;
+  background-color: #000000;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.login-page .form-input:focus {
+  border-color: #121314;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Submit Button */
+.login-page .submit-button {
+  width: 100%;
+  max-width: 350px; /* Optionally, limit the width to prevent stretching */
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+.login-page .submit-button:hover {
+  background-color: #0056b3;
+}
+
+.login-page .submit-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.register-button {
+  margin-top: 15px;
+  width: 100%;
+  max-width: 350px; /* Optionally, limit the width to prevent stretching */
+  padding: 12px;
+  background-color: #16a085;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+.register-button:hover {
+  background-color: #1abc9c;
+}
+
+.register-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
   .login-page {
-    background-color: #ffffff;
-    padding: 40px 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    animation: fadeIn 0.5s ease-in-out;
+    padding: 30px 20px;
   }
-  
-  /* Fade-in Animation */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+
+  .login-page .form-title {
+    font-size: 1.5rem;
   }
-  
-  /* Form Title */
-  .form-title {
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    color: #333333;
-    text-align: center;
-  }
-  
-  /* Error Message */
-  .error-message {
-    color: #d9534f;
-    background-color: #f8d7da;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    text-align: center;
-    font-size: 0.95rem;
-  }
-  
-  /* Form Group */
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  /* Input Fields */
-  .form-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #cccccc;
-    border-radius: 8px;
+
+  .login-page .submit-button {
     font-size: 1rem;
-    transition: border-color 0.3s ease;
   }
-  
-  .form-input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-  }
-  
-  /* Submit Button */
-  .submit-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .submit-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .submit-button:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 480px) {
-    .login-page {
-      padding: 30px 20px;
-    }
-  
-    .form-title {
-      font-size: 1.5rem;
-    }
-  
-    .submit-button {
-      font-size: 1rem;
-    }
-  }
-  
+}
