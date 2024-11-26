@@ -1,18 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard";
 import "../App.css";
 import "./AdminPage.css";
-import { useProduct } from "../contexts/ProductContext"; // Import ProductContext
-import { useAuth } from "../contexts/AuthContext"; // Import AuthContext
+import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 
 const HomePage = () => {
-  const { useProducts } = useProduct(); // Get the hook from ProductContext
-  const { data: products = [], isLoading, error } = useProducts(); // Provide a default empty array for products
   const { user } = useAuth(); // Get current user
+  const [products, setProducts] = useState([]); // All products including recommendations
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
-  const [sortOrder, setSortOrder] = useState("newest"); // Added sortOrder state
+  const [sortOrder, setSortOrder] = useState("newest");
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
@@ -20,19 +20,43 @@ const HomePage = () => {
     imageUrl: "",
     tags: [],
     sizes: [],
-  }); // State for new product form
+  });
+  const [showAddForm, setShowAddForm] = useState(false); // State to toggle Add Product form visibility
+
+  // Fetch products including recommendations
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:3001/products", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+
+        setProducts(response.data.products); // Products sorted with recommendations on top
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setError("Failed to fetch products.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // Handler for adding a new product
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token"); // Get the token
+      const token = localStorage.getItem("token");
       await axios.post("http://localhost:3001/admin/products", newProduct, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       alert("Product added successfully");
+      setShowAddForm(false); // Close the form after submission
       window.location.reload(); // Reload the page to fetch updated products
     } catch (error) {
       console.error("Error adding product:", error);
@@ -41,7 +65,7 @@ const HomePage = () => {
   };
 
   if (isLoading) return <p>Loading products...</p>;
-  if (error) return <p className="error-message">Error loading products</p>;
+  if (error) return <p className="error-message">{error}</p>;
 
   // Toggle a tag selection
   const toggleTag = (tag) => {
@@ -63,12 +87,10 @@ const HomePage = () => {
 
   // Filter products based on selected tags and sizes
   const filteredProducts = products.filter((product) => {
-    // Check tags
     const matchesTags =
       selectedTags.length === 0 ||
       selectedTags.every((tag) => product.tags.includes(tag));
 
-    // Check sizes
     const matchesSizes =
       selectedSizes.length === 0 ||
       selectedSizes.some((size) => product.sizes.includes(size));
@@ -77,15 +99,15 @@ const HomePage = () => {
   });
 
   // Sort products based on sortOrder
-  const sortedProducts = [...filteredProducts].sort((b, a) => {
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOrder === "newest") {
       return (
-        new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
-      ); // Newest first
+        new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime()
+      );
     } else if (sortOrder === "hightoLow") {
-      return a.price - b.price; // Price: High to Low
+      return b.price - a.price;
     } else if (sortOrder === "lowtoHigh") {
-      return b.price - a.price; // Price: Low to High
+      return a.price - b.price;
     }
     return 0;
   });
@@ -128,22 +150,37 @@ const HomePage = () => {
 
       <main className="product-section">
         <div className="product-header">
-          <h1>New Arrivals</h1>
-          <div className="sort-by">
-            <label>Sort by:</label>
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-            >
-              <option value="newest">Newest First</option>
-              <option value="hightoLow">Price: High to Low</option>
-              <option value="lowtoHigh">Price: Low to High</option>
-            </select>
-          </div>
+          <h1>Products</h1>
         </div>
 
-        {/* Admin Add Product Form */}
+        {/* Recommended Section */}
+        {user && (
+          <div className="recommended-section">
+            <h2>Recommended for You</h2>
+            <div className="product-grid">
+              {products.slice(0, 3).map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  isAdmin={user.isAdmin}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Toggle Button for Add Product Form */}
         {user?.isAdmin && (
+          <button
+            className="btn-primary"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            {showAddForm ? "Close Add Product Form" : "Add Product"}
+          </button>
+        )}
+
+        {/* Admin Add Product Form */}
+        {showAddForm && user?.isAdmin && (
           <form className="add-product-form" onSubmit={handleAddProduct}>
             <h2>Add Product</h2>
             <div className="form-group">
@@ -230,6 +267,18 @@ const HomePage = () => {
             </div>
           </form>
         )}
+
+        <div className="sort-by">
+          <label>Sort by:</label>
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="newest">Newest First</option>
+            <option value="hightoLow">Price: High to Low</option>
+            <option value="lowtoHigh">Price: Low to High</option>
+          </select>
+        </div>
 
         <div className="product-grid">
           {sortedProducts.map((product) => (
