@@ -1,115 +1,175 @@
-/* LoginPage.css */
+/* Placeholder Text Styling */
+.login-page .form-input::placeholder {
+  color: #888; /* Match placeholder color from register.css */
+  font-style: italic; /* Optional: Add italic styling */
+}
 
-/* General Styles */
-body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #ece9e6, #ffffff);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Center the container */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Matches register.css for full height */
+  width: 100%; /* Full width to prevent overflow */
+  padding: 20px; /* Add padding for smaller screens */
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+  box-sizing: border-box; /* Include padding in width/height */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+}
+
+/* Login Page Container */
+.login-page {
+  background-color: #1c1c1c; /* Matches register.css background */
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%; /* Flexible for smaller screens */
+  max-width: 400px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5); /* Matches register.css shadow */
+  box-sizing: border-box;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
-  
-  /* Login Page Container */
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Prevent form from having extra styles */
+.login-page form {
+  background: none; /* Remove any background */
+  box-shadow: none; /* Remove shadow */
+  border: none; /* Remove any borders */
+  padding: 0; /* Reset padding */
+  margin: 0; /* Reset margin */
+  width: 100%; /* Ensure it takes full width */
+}
+
+/* Form Title */
+.login-page .form-title {
+  font-size: 1.8rem; /* Match register.css heading size */
+  color: #f5f5f5;
+  margin: 10px 0; /* Consistent spacing */
+}
+
+/* Error Message */
+.login-page .error-message {
+  color: #ff4d4d; /* Matches .error in register.css */
+  font-size: 14px;
+  text-align: left;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
+/* Form Group */
+.login-page .form-group {
+  width: 100%; /* Take full width of the container */
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Input Fields */
+.login-page .form-input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background-color: #333;
+  color: #f5f5f5;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.login-page .form-input:focus {
+  border: 2px solid #0056b3; /* Matches register.css focus styles */
+  outline: none;
+}
+
+/* Submit Button */
+.login-page .submit-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.login-page .submit-button:hover {
+  background-color: #0056b3;
+  color: #ffffff;
+}
+
+/* Disabled Button */
+.login-page .submit-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+/* Styling for the redirect text */
+.register-redirect {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #f5f5f5;
+}
+
+/* Styling for the link */
+.register-link {
+  text-decoration: underline;
+  color: #0056b3; /* Blue color for the link */
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease; /* Smooth hover effect */
+}
+
+.register-link:hover {
+  color: #ffcc00; /* Highlight on hover */
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 10px; /* Reduce padding on smaller screens */
+  }
+
   .login-page {
-    background-color: #ffffff;
-    padding: 40px 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    animation: fadeIn 0.5s ease-in-out;
+    padding: 20px; /* Adjust padding for smaller screens */
   }
-  
-  /* Fade-in Animation */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+
+  .login-page .form-title {
+    font-size: 1.5rem;
   }
-  
-  /* Form Title */
-  .form-title {
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    color: #333333;
-    text-align: center;
+
+  .login-page .form-input {
+    font-size: 14px;
   }
-  
-  /* Error Message */
-  .error-message {
-    color: #d9534f;
-    background-color: #f8d7da;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    text-align: center;
-    font-size: 0.95rem;
+
+  .login-page .submit-button {
+    font-size: 14px;
   }
-  
-  /* Form Group */
-  .form-group {
-    margin-bottom: 20px;
+}
+
+@media (max-height: 500px) {
+  .login-container {
+    align-items: flex-start; /* Start from the top for short screens */
+    padding-top: 20px;
   }
-  
-  /* Input Fields */
-  .form-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #cccccc;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-  }
-  
-  .form-input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-  }
-  
-  /* Submit Button */
-  .submit-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .submit-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .submit-button:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 480px) {
-    .login-page {
-      padding: 30px 20px;
-    }
-  
-    .form-title {
-      font-size: 1.5rem;
-    }
-  
-    .submit-button {
-      font-size: 1rem;
-    }
-  }
-  
+}
