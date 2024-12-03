@@ -2,7 +2,7 @@ require("dotenv").config(); // Load environment variables
 
 const express = require("express");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const bodyParser = require("body-parser");
 const { body, validationResult } = require("express-validator");
