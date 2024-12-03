@@ -23,6 +23,7 @@ const AccountPage = () => {
   });
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Redirect to login page if user logs out
   useEffect(() => {
@@ -49,6 +50,23 @@ const AccountPage = () => {
     }
   }, [user]);
 
+  const validateInputs = () => {
+    const newErrors = {};
+
+    // Expiry Date validation: format should be MM/YY
+    if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(formData.expiryDate)) {
+      newErrors.expiryDate = "Expiry date must be in MM/YY format.";
+    }
+
+    // CVV validation: must be exactly 3 digits
+    if (!/^\d{3}$/.test(formData.cvv)) {
+      newErrors.cvv = "CVV must be exactly 3 digits.";
+    }
+
+    setErrors(newErrors); // Update the error state
+    return Object.keys(newErrors).length === 0; // Return false if there are errors
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -58,7 +76,8 @@ const AccountPage = () => {
     setLoading(true);
     setMessage(null);
 
-    const updates = {
+   if (validateInputs()) {
+      const updates = {
       username: formData.username,
       email: formData.email,
       shippingInfo: {
@@ -77,6 +96,9 @@ const AccountPage = () => {
 
     const result = await updateAccount(updates);
     setMessage(result.message);
+  } else {
+    setMessage("Please fix the errors before submitting.");
+  }
     setLoading(false);
   };
 
@@ -172,6 +194,7 @@ const AccountPage = () => {
             onChange={handleChange}
             placeholder="MM/YY"
           />
+          {errors.expiryDate && <p className="error">{errors.expiryDate}</p>}
         </label>
         <label>
           CVV:
@@ -181,6 +204,7 @@ const AccountPage = () => {
             value={formData.cvv}
             onChange={handleChange}
           />
+          {errors.cvv && <p className="error">{errors.cvv}</p>}
         </label>
         
         <button type="submit" className="submit-button" disabled={loading}>
