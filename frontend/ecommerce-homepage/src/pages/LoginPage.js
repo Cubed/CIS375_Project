@@ -80,13 +80,14 @@ const LoginPage = () => {
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
           <div className="register-redirect">
-            <p>
-              Don't have an account?{" "}
-              <a href="/register" className="register-link">
-                Register here
-              </a>
-            </p>
-          </div>
+  <p>
+    Don't have an account?{" "}
+    <a href="/register" className="register-link">
+      Register here
+    </a>
+  </p>
+</div>
+
         </form>
       </div>
     </div>
