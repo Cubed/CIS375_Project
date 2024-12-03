@@ -29,6 +29,14 @@ const CheckoutPage = () => {
   const [cvv, setCvv] = useState(user?.savedPaymentInfo?.cvv || "");
   const [deliveryDate, setDeliveryDate] = useState("");
 
+  const isCvvValid = (cvv) => /^\d{3}$/.test(cvv); // CVV must be exactly 3 digits
+  const isExpiryDateValid = (expiryDate) => {
+    const [year, month] = expiryDate.split("-");
+    const expiry = new Date(year, month - 1); // Convert MM/YY to Date object
+    const now = new Date();
+    return expiry > now; // Expiry date must be in the future
+  };
+
   useEffect(() => {
     const generateRandomDeliveryDate = () => {
       const today = new Date();
@@ -41,7 +49,7 @@ const CheckoutPage = () => {
     setDeliveryDate(generateRandomDeliveryDate());
   }, []);
 
-  const handleConfirmPurchase = async () => {
+ const handleConfirmPurchase = async () => {
     if (
       !user &&
       (!address ||
@@ -54,6 +62,16 @@ const CheckoutPage = () => {
         !cvv)
     ) {
       alert("Please enter all required information.");
+      return;
+    }
+
+    if (!isCvvValid(cvv)) {
+      alert("Invalid CVV. It must be exactly 3 digits.");
+      return;
+    }
+
+    if (!isExpiryDateValid(expiryDate)) {
+      alert("Invalid Expiry Date. It must be in the future.");
       return;
     }
 
@@ -177,8 +195,8 @@ const CheckoutPage = () => {
             onChange={(e) => setCardHolderName(e.target.value)}
             required
           />
-          <input
-            type="text"
+           <input
+            type="month"
             placeholder="Expiry Date (MM/YY)"
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
@@ -189,6 +207,8 @@ const CheckoutPage = () => {
             placeholder="CVV"
             value={cvv}
             onChange={(e) => setCvv(e.target.value)}
+            maxLength="3"
+            pattern="\d{3}"
             required
           />
         </>
