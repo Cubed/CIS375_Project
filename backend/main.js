@@ -91,9 +91,6 @@ const productSchema = new mongoose.Schema({
   creationDate: { type: Date, default: Date.now }, // Automatically set creation date
 });
 const Product = mongoose.model("Product", productSchema);
-// In your Product Schema definition
-// Create a compound text index including name, description, and tags (Optional)
-productSchema.index({ name: "text", description: "text", tags: "text" });
 
 // Cart Schema
 const cartSchema = new mongoose.Schema({
@@ -206,6 +203,14 @@ function validateLuhn(cardNumber) {
 
 // Entitlement System
 
+/*
+Payload:
+{
+	"size":"S",
+	"quantity":1
+}
+*/
+
 // Endpoint to simulate product purchase (for authenticated users)
 app.post(
   "/purchase/:productId",
@@ -262,10 +267,12 @@ app.post(
       });
       await order.save();
 
-      res.status(200).send({
-        message: "Product purchased and entitlement created",
-        entitlement,
-      });
+      res
+        .status(200)
+        .send({
+          message: "Product purchased and entitlement created",
+          entitlement,
+        });
     } catch (error) {
       console.error("Error purchasing product:", error);
       res.status(500).send("Internal server error.");
@@ -651,44 +658,24 @@ app.delete("/cart/:productId", authenticateToken, async (req, res) => {
   }
 });
 
-// Utility function to escape special RegEx characters in the keyword
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
-}
-
-// Utility function to escape special RegEx characters in the keyword
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
-}
-
-// Updated Product Search by Name using Full-Text Search with Fallback
-app.get("/product/search", async (req, res) => {
-  const { query } = req.query;
-
-  // Validate that the query is provided and is a string
-  if (!query || typeof query !== "string") {
-    return res
-      .status(400)
-      .send({ error: "Query parameter is required and must be a string." });
+// Product Search & Filters
+app.get("/products/search", async (req, res) => {
+  const { keyword, category, minPrice, maxPrice } = req.query;
+  const query = {};
+  if (keyword) query.name = new RegExp(keyword, "i");
+  if (category) query.category = category;
+  if (minPrice || maxPrice) {
+    query.price = {
+      $gte: minPrice ? parseFloat(minPrice) : 0,
+      $lte: maxPrice ? parseFloat(maxPrice) : Infinity,
+    };
   }
-
   try {
-    // First, attempt a full-text search
-    let products = await Product.find(
-      { $text: { $search: query } },
-      { score: { $meta: "textScore" } }
-    ).sort({ score: { $meta: "textScore" } });
-
-    // If no products found, perform a partial, case-insensitive match using regex
-    if (products.length === 0) {
-      const regex = new RegExp(escapeRegExp(query), "i"); // 'i' for case-insensitive
-      products = await Product.find({ name: regex });
-    }
-
-    res.status(200).send(products);
+    const products = await Product.find(query);
+    res.send(products);
   } catch (error) {
     console.error("Error searching products:", error);
-    res.status(500).send({ error: "Internal server error." });
+    res.status(500).send("Internal server error.");
   }
 });
 
@@ -1182,10 +1169,8 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { quantity, shippingInfo, paymentInfo, size } = req.body;
+    const { quantity, shippingInfo, paymentInfo } = req.body;
     try {
-      //First of all, we need to actually use paymentInfo and verify the paymentInfo is valid, just like in the register endpoint.
-
       // Check if product exists
       const product = await Product.findById(productId);
       if (!product) return res.status(404).send("Product not found.");
@@ -1213,7 +1198,6 @@ app.post(
           products: order.products,
           total: order.total,
           shippingInfo: order.shippingInfo,
-          size: order.size,
         },
       });
     } catch (error) {

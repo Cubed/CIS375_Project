@@ -25,15 +25,30 @@
   align-items: center;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
+  animation: fadeIn 0.5s ease-in-out; /* Matching login fade-in animation */
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Headings for form sections */
 .account-form h2,
 .account-form h3 {
+  font-size: 1.8rem; /* Matches login form title */
   margin: 10px 0;
   color: #f5f5f5;
 }
 
+/* Form Labels */
 .account-form label {
   width: 100%;
   display: flex;
@@ -54,29 +69,41 @@
   border-radius: 8px;
   font-size: 16px;
   box-sizing: border-box;
+  transition: border-color 0.3s ease;
 }
 
 .account-form input::placeholder {
   color: #888;
+  font-style: italic;
+}
+
+.account-form input:focus {
+  border: 2px solid #0056b3; /* Matches login page focus style */
+  outline: none;
 }
 
 /* Styling for the submit button */
 .account-form .submit-button {
   width: 100%;
   padding: 12px;
-  background-color: #4caf50;
-  color: #f5f5f5;
+  background-color: #ffffff;
+  color: #000000;
   font-size: 16px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   margin-top: 20px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-/* Hover effect for the submit button */
 .account-form .submit-button:hover {
-  background-color: #45a049;
+  background-color: #0056b3;
+  color: #ffffff;
+}
+
+.account-form .submit-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
 }
 
 /* Styling for success and error messages */
@@ -94,7 +121,28 @@
   text-align: center;
 }
 
-/* Responsive design for smaller screens */
+/* Styling for the redirect text */
+.account-redirect {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #f5f5f5;
+}
+
+/* Styling for the link */
+.account-link {
+  text-decoration: underline;
+  color: #0056b3; /* Blue color for the link */
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease; /* Smooth hover effect */
+}
+
+.account-link:hover {
+  color: #ffcc00; /* Highlight on hover */
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .account-container {
     padding: 10px;
@@ -102,6 +150,11 @@
 
   .account-form {
     padding: 20px;
+  }
+
+  .account-form h2,
+  .account-form h3 {
+    font-size: 1.5rem;
   }
 
   .account-form input {
@@ -113,7 +166,6 @@
   }
 }
 
-/* Adjustments for very short screens */
 @media (max-height: 500px) {
   .account-container {
     align-items: flex-start;
