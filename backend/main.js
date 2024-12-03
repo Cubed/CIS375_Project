@@ -91,6 +91,11 @@ const productSchema = new mongoose.Schema({
   creationDate: { type: Date, default: Date.now } // Automatically set creation date
 });
 const Product = mongoose.model("Product", productSchema);
+// In your Product Schema definition
+// Create a compound text index including name, description, and tags (Optional)
+productSchema.index({ name: "text", description: "text", tags: "text" });
+
+
 
 // Cart Schema
 const cartSchema = new mongoose.Schema({
@@ -630,26 +635,51 @@ app.delete("/cart/:productId", authenticateToken, async (req, res) => {
   }
 });
 
-// Product Search & Filters
-app.get("/products/search", async (req, res) => {
-  const { keyword, category, minPrice, maxPrice } = req.query;
-  const query = {};
-  if (keyword) query.name = new RegExp(keyword, "i");
-  if (category) query.category = category;
-  if (minPrice || maxPrice) {
-    query.price = {
-      $gte: minPrice ? parseFloat(minPrice) : 0,
-      $lte: maxPrice ? parseFloat(maxPrice) : Infinity,
-    };
+// Utility function to escape special RegEx characters in the keyword
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+// Utility function to escape special RegEx characters in the keyword
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+
+
+// Updated Product Search by Name using Full-Text Search with Fallback
+app.get("/product/search", async (req, res) => {
+  const { query } = req.query;
+
+  // Validate that the query is provided and is a string
+  if (!query || typeof query !== 'string') {
+    return res.status(400).send({ error: "Query parameter is required and must be a string." });
   }
+
   try {
-    const products = await Product.find(query);
-    res.send(products);
+    // First, attempt a full-text search
+    let products = await Product.find(
+      { $text: { $search: query } },
+      { score: { $meta: "textScore" } }
+    ).sort({ score: { $meta: "textScore" } });
+
+    // If no products found, perform a partial, case-insensitive match using regex
+    if (products.length === 0) {
+      const regex = new RegExp(escapeRegExp(query), 'i'); // 'i' for case-insensitive
+      products = await Product.find({ name: regex });
+    }
+
+    res.status(200).send(products);
   } catch (error) {
     console.error("Error searching products:", error);
-    res.status(500).send("Internal server error.");
+    res.status(500).send({ error: "Internal server error." });
   }
 });
+
+
+
+
+
 
 // Clear all items in the cart
 app.delete("/cart_all/delete", authenticateToken, async (req, res) => {
