@@ -16,25 +16,36 @@ const LoginPage = () => {
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    const loginResponse = await login(email, password);
+    try {
+      const loginResponse = await login(email, password);
 
-    if (loginResponse.success) {
-      // If login is successful, navigate to the homepage
-      navigate("/");
-    } else {
-      // If login failed, display the error message
-      setErrorMessage(loginResponse.message);
+      if (loginResponse.success) {
+        // Navigate to the homepage upon successful login
+        navigate("/");
+      } else {
+        // Display error message if login fails
+        setErrorMessage(loginResponse.message);
+      }
+    } catch (error) {
+      // Handle unexpected errors
+      setErrorMessage("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false); // Re-enable the form after handling response
     }
-
-    setIsSubmitting(false); // Re-enable the form after handling response
   };
 
   return (
     <div className="login-container">
       <div className="login-page">
+        {/* Title */}
         <h2 className="form-title">Login</h2>
+
+        {/* Error Message */}
         {errorMessage && <div className="error-message">{errorMessage}</div>}
+
+        {/* Login Form */}
         <form onSubmit={handleSubmit}>
+          {/* Email Input */}
           <div className="form-group">
             <input
               type="email"
@@ -46,6 +57,8 @@ const LoginPage = () => {
               disabled={isSubmitting}
             />
           </div>
+
+          {/* Password Input */}
           <div className="form-group">
             <input
               type="password"
@@ -57,6 +70,8 @@ const LoginPage = () => {
               disabled={isSubmitting}
             />
           </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
             className="submit-button"
@@ -64,6 +79,14 @@ const LoginPage = () => {
           >
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
+          <div className="register-redirect">
+            <p>
+              Don't have an account?{" "}
+              <a href="/register" className="register-link">
+                Register here
+              </a>
+            </p>
+          </div>
         </form>
       </div>
     </div>

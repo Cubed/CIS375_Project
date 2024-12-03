@@ -1,34 +1,37 @@
 /* Placeholder Text Styling */
 .login-page .form-input::placeholder {
-  color: #ffffff80; /* Replace with your desired placeholder color */
+  color: #888; /* Match placeholder color from register.css */
   font-style: italic; /* Optional: Add italic styling */
-  opacity: 1; /* Ensure the color is fully visible */
-  text-align: left; /* Align placeholder text to the left */
-  margin-left: 0; /* Remove any left margin if added elsewhere */
-  padding-left: 0; /* Remove any extra padding affecting alignment */
 }
 
 /* Center the container */
 .login-container {
-  display: flex; /* Enables flexbox */
-  justify-content: center; /* Centers horizontally */
-  align-items: center; /* Centers vertically */
-  height: 100vh; /* Ensures the container spans the full height of the viewport */
-  background-color: #1b1b1b; /* Optional: Matches the page background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Matches register.css for full height */
+  width: 100%; /* Full width to prevent overflow */
+  padding: 20px; /* Add padding for smaller screens */
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+  box-sizing: border-box; /* Include padding in width/height */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
 }
+
 /* Login Page Container */
 .login-page {
-  background-color: #2c3e50;
-  padding: 40px 30px;
+  background-color: #1c1c1c; /* Matches register.css background */
+  padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  width: 90%; /* Flexible for smaller screens */
   max-width: 400px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5); /* Matches register.css shadow */
+  box-sizing: border-box;
   animation: fadeIn 0.5s ease-in-out;
-  display: flex; /* Enable flexbox */
-  flex-direction: column; /* Stack items vertically */
-  align-items: center; /* Horizontally center the items */
-  justify-content: center; /* Vertically center the items */
 }
 
 /* Fade-in Animation */
@@ -42,118 +45,130 @@
     transform: translateY(0);
   }
 }
+/* Prevent form from having extra styles */
+.login-page form {
+  background: none; /* Remove any background */
+  box-shadow: none; /* Remove shadow */
+  border: none; /* Remove any borders */
+  padding: 0; /* Reset padding */
+  margin: 0; /* Reset margin */
+  width: 100%; /* Ensure it takes full width */
+}
+
+/* Form Title */
+.login-page .form-title {
+  font-size: 1.8rem; /* Match register.css heading size */
+  color: #f5f5f5;
+  margin: 10px 0; /* Consistent spacing */
+}
+
+/* Error Message */
+.login-page .error-message {
+  color: #ff4d4d; /* Matches .error in register.css */
+  font-size: 14px;
+  text-align: left;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
 /* Form Group */
 .login-page .form-group {
+  width: 100%; /* Take full width of the container */
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
 }
 
-/* Form Labels */
-.login-page .form-label {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #ffffff; /* Replace with your desired color */
-  margin-bottom: 5px; /* Space between label and input */
-}
-
-/* Form Title */
-.login-page .form-title {
-  margin-bottom: 20px;
-  font-size: 1.8rem;
-  color: #ffffff;
-  text-align: center;
-}
-
-/* Error Message */
-.login-page .error-message {
-  color: #d9534f;
-  background-color: #f8d7da;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  text-align: center;
-  font-size: 0.95rem;
-}
-
 /* Input Fields */
 .login-page .form-input {
-  box-sizing: border-box; /* Include padding and border in width calculation */
   width: 100%;
-  max-width: 350px; /* Optionally, limit the width to prevent stretching */
-  padding: 12px 40px;
-  background-color: #000000;
-  border: 1px solid #ffffff;
+  padding: 12px;
+  margin: 8px 0;
+  background-color: #333;
+  color: #f5f5f5;
+  border: none;
   border-radius: 8px;
-  color: #ffffff;
-  font-size: 1rem;
+  font-size: 16px;
+  box-sizing: border-box;
   transition: border-color 0.3s ease;
 }
 
 .login-page .form-input:focus {
-  border-color: #121314;
+  border: 2px solid #0056b3; /* Matches register.css focus styles */
   outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 /* Submit Button */
 .login-page .submit-button {
   width: 100%;
-  max-width: 350px; /* Optionally, limit the width to prevent stretching */
+  padding: 12px;
   background-color: #ffffff;
   color: #000000;
+  font-size: 16px;
   border: none;
   border-radius: 8px;
-  font-size: 1.1rem;
   cursor: pointer;
+  margin-top: 20px;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  box-sizing: border-box; /* Ensures padding doesn't affect width */
 }
 
 .login-page .submit-button:hover {
   background-color: #0056b3;
+  color: #ffffff;
 }
 
+/* Disabled Button */
 .login-page .submit-button:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
 }
+/* Styling for the redirect text */
+.register-redirect {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #f5f5f5;
+}
 
-.register-button {
-  margin-top: 15px;
-  width: 100%;
-  max-width: 350px; /* Optionally, limit the width to prevent stretching */
-  padding: 12px;
-  background-color: #16a085;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
+/* Styling for the link */
+.register-link {
+  text-decoration: underline;
+  color: #0056b3; /* Blue color for the link */
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-sizing: border-box; /* Ensures padding doesn't affect width */
+  transition: color 0.3s ease; /* Smooth hover effect */
 }
 
-.register-button:hover {
-  background-color: #1abc9c;
-}
-
-.register-button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
+.register-link:hover {
+  color: #ffcc00; /* Highlight on hover */
 }
 
 /* Responsive Design */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .login-container {
+    padding: 10px; /* Reduce padding on smaller screens */
+  }
+
   .login-page {
-    padding: 30px 20px;
+    padding: 20px; /* Adjust padding for smaller screens */
   }
 
   .login-page .form-title {
     font-size: 1.5rem;
   }
 
+  .login-page .form-input {
+    font-size: 14px;
+  }
+
   .login-page .submit-button {
-    font-size: 1rem;
+    font-size: 14px;
+  }
+}
+
+@media (max-height: 500px) {
+  .login-container {
+    align-items: flex-start; /* Start from the top for short screens */
+    padding-top: 20px;
   }
 }
