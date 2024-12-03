@@ -464,3 +464,143 @@ button.dropdown-item:hover {
     font-size: 0.9em;
   }
 }
+
+/* Search Form */
+.nav-search {
+  display: flex;
+  align-items: center;
+  margin: 0 20px; /* Adjust spacing as needed */
+}
+
+.nav-search input {
+  padding: 5px 10px;
+  background-color: #333;
+  color: #f0f0f0;
+  border: 1px solid #444;
+  border-radius: 4px 0 0 4px;
+  width: 200px; /* Adjust width as needed */
+  transition: width 0.3s ease;
+}
+
+.nav-search input:focus {
+  outline: none;
+  width: 250px; /* Expand input on focus */
+}
+
+.search-button {
+  padding: 5px 10px;
+  background-color: #333;
+  color: #f0f0f0;
+  border: 1px solid #444;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button:hover {
+  background-color: #f39c12;
+  color: #1b1b1b;
+}
+
+/* Adjust Search Icon Size */
+.nav-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Existing styles... */
+
+/* Search Form */
+.nav-search {
+  position: relative; /* Position relative to contain the absolute dropdown */
+  display: flex;
+  align-items: center;
+  margin: 0 20px; /* Adjust spacing as needed */
+}
+
+.nav-search input {
+  padding: 5px 10px;
+  background-color: #333;
+  color: #f0f0f0;
+  border: 1px solid #444;
+  border-radius: 4px 0 0 4px;
+  width: 200px; /* Adjust width as needed */
+  transition: width 0.3s ease;
+}
+
+.nav-search input:focus {
+  outline: none;
+  width: 250px; /* Expand input on focus */
+}
+
+.search-button {
+  padding: 5px 10px;
+  background-color: #333;
+  color: #f0f0f0;
+  border: 1px solid #444;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button:hover {
+  background-color: #f39c12;
+  color: #1b1b1b;
+}
+
+/* Adjust Search Icon Size */
+.nav-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Search Suggestions Dropdown */
+.search-suggestions {
+  position: absolute;
+  top: 40px; /* Adjust based on input height */
+  left: 0;
+  right: 0;
+  background-color: #222;
+  border: 1px solid #444;
+  border-radius: 4px;
+  max-height: 300px; /* Limit height and enable scrolling if necessary */
+  overflow-y: auto;
+  z-index: 1000; /* Ensure it appears above other elements */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.suggestion-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  color: #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: #333;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  /* Existing responsive styles... */
+
+  .nav-search {
+    margin: 10px 0;
+    width: 100%;
+  }
+
+  .nav-search input {
+    width: 100%;
+  }
+
+  .search-suggestions {
+    top: 35px;
+    width: 100%;
+  }
+}

@@ -17,6 +17,7 @@ const CartPage = () => {
   } = useCart();
   const navigate = useNavigate();
 
+  // Handle navigation to checkout or guest checkout
   const handleBuyClick = () => {
     if (!cartItems || cartItems.length === 0) {
       alert("Your cart is empty. Add some items before checking out.");
