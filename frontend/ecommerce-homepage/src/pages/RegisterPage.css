@@ -1,0 +1,112 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Ensure it always takes the full height */
+  width: 100%; /* Full width to prevent overflow */
+  padding: 20px; /* Add padding for smaller screens */
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+  box-sizing: border-box; /* Ensure padding is included in width/height */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+}
+
+.register-form {
+  background-color: #1c1c1c;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%; /* Make it more flexible for smaller screens */
+  max-width: 400px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5); /* Optional: Add shadow for aesthetics */
+  box-sizing: border-box; /* Include padding in the width */
+}
+
+.register-form h2,
+.register-form h3 {
+  margin: 10px 0;
+  color: #f5f5f5;
+}
+
+.register-form input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background-color: #333; /* Match autofill background */
+  color: #f5f5f5;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.register-form input::placeholder {
+  color: #888;
+}
+
+/* Autofill styling to maintain background and text color */
+.register-form input:-webkit-autofill,
+.register-form input:-webkit-autofill:focus,
+.register-form input:-webkit-autofill:hover,
+.register-form input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #333 inset;
+  -webkit-text-fill-color: #f5f5f5;
+  transition: background-color 5000s ease-in-out 0s;
+
+  /* Standard properties */
+  box-shadow: 0 0 0px 1000px #333 inset;
+}
+
+.register-form .register-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  color: #f5f5f5;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.register-form .register-button:hover {
+  background-color: #45a049;
+}
+
+.error {
+  color: #ff4d4d;
+  font-size: 14px;
+  text-align: left;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .register-container {
+    padding: 10px; /* Reduce padding on smaller screens */
+  }
+
+  .register-form {
+    padding: 20px; /* Adjust padding for better fit */
+  }
+
+  .register-form input {
+    font-size: 14px; /* Adjust font size for smaller screens */
+  }
+
+  .register-form .register-button {
+    font-size: 14px; /* Adjust button size */
+  }
+}
+
+@media (max-height: 500px) {
+  .register-container {
+    align-items: flex-start; /* Start from the top for very short screens */
+    padding-top: 20px; /* Add spacing from the top */
+  }
+}

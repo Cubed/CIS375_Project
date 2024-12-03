@@ -95,7 +95,7 @@ const Product = mongoose.model("Product", productSchema);
 // Cart Schema
 const cartSchema = new mongoose.Schema({
   userId: mongoose.Schema.Types.ObjectId,
-  products: [{ productId: mongoose.Schema.Types.ObjectId, quantity: Number }],
+  products: [{ productId: mongoose.Schema.Types.ObjectId, quantity: Number, size: String }],
 });
 const Cart = mongoose.model("Cart", cartSchema);
 
@@ -196,14 +196,6 @@ function validateLuhn(cardNumber) {
 // Routes
 
 // Entitlement System
-
-/*
-Payload:
-{
-	"size":"S",
-	"quantity":1
-}
-*/
 
 
 // Endpoint to simulate product purchase (for authenticated users)
@@ -510,6 +502,9 @@ app.post(
     body("quantity")
       .isInt({ gt: 0 })
       .withMessage("Quantity must be a positive integer."),
+    body("size")
+      .isIn(["XS", "S", "M", "L", "XL", "XXL"])
+      .withMessage("Invalid size. Available sizes: XS, S, M, L, XL, XXL."),
   ],
   async (req, res) => {
     // Validate input
@@ -518,7 +513,7 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { productId, quantity } = req.body;
+    const { productId, quantity, size } = req.body;
     try {
       // Check if product exists
       const product = await Product.findById(productId);
@@ -532,13 +527,14 @@ app.post(
         );
         if (item) {
           item.quantity += quantity;
-        } else {
-          cart.products.push({ productId, quantity });
+        } 
+        else {
+          cart.products.push({ productId, quantity, size });
         }
       } else {
         cart = new Cart({
           userId: req.user.id,
-          products: [{ productId, quantity }],
+          products: [{ productId, quantity, size }],
         });
       }
       await cart.save();
@@ -1145,8 +1141,12 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { quantity, shippingInfo, paymentInfo } = req.body;
+    const { quantity, shippingInfo, paymentInfo, size } = req.body;
     try {
+
+      //First of all, we need to actually use paymentInfo and verify the paymentInfo is valid, just like in the register endpoint.
+
+
       // Check if product exists
       const product = await Product.findById(productId);
       if (!product) return res.status(404).send("Product not found.");
@@ -1174,6 +1174,7 @@ app.post(
           products: order.products,
           total: order.total,
           shippingInfo: order.shippingInfo,
+          size: order.size
         },
       });
     } catch (error) {
