@@ -30,9 +30,24 @@ const RegisterPage = () => {
       newErrors.cardNumber = "Invalid card number format.";
     if (!cardHolderName)
       newErrors.cardHolderName = "Card holder name is required.";
-    if (!/^(0[1-9]|1[0-2])\/?([0-9]{2})$/.test(expiryDate))
+    if (!/^(0[1-9]|1[0-2])\/?([0-9]{2})$/.test(expiryDate)) {
       newErrors.expiryDate = "Invalid expiry date. Format: MM/YY";
-    if (!/^\d{3,4}$/.test(cvv)) newErrors.cvv = "Invalid CVV.";
+    } else {
+      const [month, year] = expiryDate.split("/").map(Number);
+      const currentDate = new Date();
+      const currentYear = parseInt(
+        currentDate.getFullYear().toString().slice(-2)
+      ); // Get last two digits of the year
+      const currentMonth = currentDate.getMonth() + 1;
+
+      if (
+        year < currentYear ||
+        (year === currentYear && month < currentMonth)
+      ) {
+        newErrors.expiryDate = "Expiry date must be in the future.";
+      }
+    }
+    if (!/^\d{3}$/.test(cvv)) newErrors.cvv = "Invalid CVV.";
     if (!address) newErrors.address = "Address is required.";
     if (!state) newErrors.state = "State is required.";
     if (!/^\d{5}(-\d{4})?$/.test(zipcode))

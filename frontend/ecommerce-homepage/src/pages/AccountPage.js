@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import './AccountPage.css';
-
+import "./AccountPage.css";
 
 const AccountPage = () => {
   const { user, updateAccount } = useAuth();
@@ -23,6 +22,7 @@ const AccountPage = () => {
   });
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Redirect to login page if user logs out
   useEffect(() => {
@@ -49,6 +49,23 @@ const AccountPage = () => {
     }
   }, [user]);
 
+  const validateInputs = () => {
+    const newErrors = {};
+
+    // Expiry Date validation: format should be MM/YY
+    if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(formData.expiryDate)) {
+      newErrors.expiryDate = "Expiry date must be in MM/YY format.";
+    }
+
+    // CVV validation: must be exactly 3 digits
+    if (!/^\d{3}$/.test(formData.cvv)) {
+      newErrors.cvv = "CVV must be exactly 3 digits.";
+    }
+
+    setErrors(newErrors); // Update the error state
+    return Object.keys(newErrors).length === 0; // Return false if there are errors
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -58,25 +75,29 @@ const AccountPage = () => {
     setLoading(true);
     setMessage(null);
 
-    const updates = {
-      username: formData.username,
-      email: formData.email,
-      shippingInfo: {
-        address: formData.address,
-        state: formData.state,
-        city: formData.city,
-        zipcode: formData.zipcode,
-      },
-      savedPaymentInfo: {
-        cardNumber: formData.cardNumber,
-        cardHolderName: formData.cardHolderName,
-        expiryDate: formData.expiryDate,
-        cvv: formData.cvv,
-      },
-    };
+    if (validateInputs()) {
+      const updates = {
+        username: formData.username,
+        email: formData.email,
+        shippingInfo: {
+          address: formData.address,
+          state: formData.state,
+          city: formData.city,
+          zipcode: formData.zipcode,
+        },
+        savedPaymentInfo: {
+          cardNumber: formData.cardNumber,
+          cardHolderName: formData.cardHolderName,
+          expiryDate: formData.expiryDate,
+          cvv: formData.cvv,
+        },
+      };
 
-    const result = await updateAccount(updates);
-    setMessage(result.message);
+      const result = await updateAccount(updates);
+      setMessage(result.message);
+    } else {
+      setMessage("Please fix the errors before submitting.");
+    }
     setLoading(false);
   };
 
@@ -86,10 +107,11 @@ const AccountPage = () => {
         <h2>Account Information</h2>
         {message && <p className="message">{message}</p>}
         {loading && <p className="message">Updating...</p>}
-        
+
         <label>
           Username:
           <input
+            className="account-form"
             type="text"
             name="username"
             value={formData.username}
@@ -99,17 +121,19 @@ const AccountPage = () => {
         <label>
           Email:
           <input
+            className="account-form"
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
           />
         </label>
-        
+
         <h3>Shipping Information</h3>
         <label>
           Address:
           <input
+            className="account-form"
             type="text"
             name="address"
             value={formData.address}
@@ -119,6 +143,7 @@ const AccountPage = () => {
         <label>
           State:
           <input
+            className="account-form"
             type="text"
             name="state"
             value={formData.state}
@@ -128,6 +153,7 @@ const AccountPage = () => {
         <label>
           City:
           <input
+            className="account-form"
             type="text"
             name="city"
             value={formData.city}
@@ -137,17 +163,19 @@ const AccountPage = () => {
         <label>
           Zipcode:
           <input
+            className="account-form"
             type="text"
             name="zipcode"
             value={formData.zipcode}
             onChange={handleChange}
           />
         </label>
-        
+
         <h3>Payment Information</h3>
         <label>
           Card Number:
           <input
+            className="account-form"
             type="text"
             name="cardNumber"
             value={formData.cardNumber}
@@ -157,6 +185,7 @@ const AccountPage = () => {
         <label>
           Card Holder Name:
           <input
+            className="account-form"
             type="text"
             name="cardHolderName"
             value={formData.cardHolderName}
@@ -166,30 +195,33 @@ const AccountPage = () => {
         <label>
           Expiry Date:
           <input
+            className="account-form"
             type="text"
             name="expiryDate"
             value={formData.expiryDate}
             onChange={handleChange}
             placeholder="MM/YY"
           />
+          {errors.expiryDate && <p className="error">{errors.expiryDate}</p>}
         </label>
         <label>
           CVV:
           <input
+            className="account-form"
             type="text"
             name="cvv"
             value={formData.cvv}
             onChange={handleChange}
           />
+          {errors.cvv && <p className="error">{errors.cvv}</p>}
         </label>
-        
+
         <button type="submit" className="submit-button" disabled={loading}>
           {loading ? "Updating..." : "Update Account"}
         </button>
       </form>
     </div>
   );
-  
 };
 
 export default AccountPage;

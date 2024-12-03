@@ -1,4 +1,3 @@
-// src/components/CheckoutPage.js
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
@@ -30,6 +29,14 @@ const CheckoutPage = () => {
   const [cvv, setCvv] = useState(user?.savedPaymentInfo?.cvv || "");
   const [deliveryDate, setDeliveryDate] = useState("");
 
+  const isCvvValid = (cvv) => /^\d{3}$/.test(cvv); // CVV must be exactly 3 digits
+  const isExpiryDateValid = (expiryDate) => {
+    const [year, month] = expiryDate.split("-");
+    const expiry = new Date(year, month - 1); // Convert MM/YY to Date object
+    const now = new Date();
+    return expiry > now; // Expiry date must be in the future
+  };
+
   useEffect(() => {
     const generateRandomDeliveryDate = () => {
       const today = new Date();
@@ -58,12 +65,21 @@ const CheckoutPage = () => {
       return;
     }
 
+    if (!isCvvValid(cvv)) {
+      alert("Invalid CVV. It must be exactly 3 digits.");
+      return;
+    }
+
+    if (!isExpiryDateValid(expiryDate)) {
+      alert("Invalid Expiry Date. It must be in the future.");
+      return;
+    }
+
     try {
       if (user) {
         // Authenticated user purchase
         const token = localStorage.getItem("token");
 
-        // Loop through cart items and send the purchase request for each item
         for (const item of cartItems) {
           if (!item.size || !item.quantity) {
             console.error("Missing size or quantity in cart item:", item);
@@ -74,12 +90,6 @@ const CheckoutPage = () => {
             );
             return;
           }
-
-          console.log("Sending Payload for Authenticated Purchase:", {
-            productId: item.productId,
-            size: item.size,
-            quantity: item.quantity,
-          });
 
           await axios.post(
             `http://localhost:3001/purchase/${item.productId}`,
@@ -95,14 +105,6 @@ const CheckoutPage = () => {
           );
         }
       } else if (productId) {
-        // Guest checkout for a single product
-        console.log("Sending Payload for Guest Checkout:", {
-          productId,
-          quantity,
-          shippingInfo: { address, city, state, zipcode: zipCode },
-          paymentInfo: { cardNumber, cardHolderName, expiryDate, cvv },
-        });
-
         await axios.post(`http://localhost:3001/purchase/${productId}/guest`, {
           quantity,
           shippingInfo: { address, city, state, zipcode: zipCode },
@@ -130,39 +132,39 @@ const CheckoutPage = () => {
 
   return (
     <div className="checkout-container">
-      <div className="checkout-form">
+      <form className="checkout-form" onSubmit={(e) => e.preventDefault()}>
         <h1>Checkout</h1>
         {!user && (
           <>
             <h2>Shipping Information</h2>
             <input
+              className="checkout-form-input"
               type="text"
               placeholder="Address"
-              className="checkout-input"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               required
             />
             <input
+              className="checkout-form-input"
               type="text"
               placeholder="City"
-              className="checkout-input"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               required
             />
             <input
+              className="checkout-form-input"
               type="text"
               placeholder="State"
-              className="checkout-input"
               value={state}
               onChange={(e) => setState(e.target.value)}
               required
             />
             <input
+              className="checkout-form-input"
               type="text"
               placeholder="Zip Code"
-              className="checkout-input"
               value={zipCode}
               onChange={(e) => setZipCode(e.target.value)}
               required
@@ -170,35 +172,36 @@ const CheckoutPage = () => {
 
             <h2>Payment Information</h2>
             <input
+              className="checkout-form-input"
               type="text"
               placeholder="Card Number"
-              className="checkout-input"
               value={cardNumber}
               onChange={(e) => setCardNumber(e.target.value)}
               required
             />
             <input
+              className="checkout-form-input"
               type="text"
               placeholder="Card Holder Name"
-              className="checkout-input"
               value={cardHolderName}
               onChange={(e) => setCardHolderName(e.target.value)}
               required
             />
             <input
-              type="text"
+              className="checkout-form-input"
+              type="month"
               placeholder="Expiry Date (MM/YY)"
-              className="checkout-input"
               value={expiryDate}
               onChange={(e) => setExpiryDate(e.target.value)}
               required
             />
             <input
+              className="checkout-form-input"
               type="text"
               placeholder="CVV"
-              className="checkout-input"
               value={cvv}
               onChange={(e) => setCvv(e.target.value)}
+              maxLength="3"
               required
             />
           </>
@@ -208,7 +211,7 @@ const CheckoutPage = () => {
         <button className="checkout-button" onClick={handleConfirmPurchase}>
           Confirm Purchase
         </button>
-      </div>
+      </form>
     </div>
   );
 };
