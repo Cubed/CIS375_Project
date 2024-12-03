@@ -42,7 +42,7 @@ const RegisterPage = () => {
         newErrors.expiryDate = "Expiry date must be in the future.";
       }
     }    
-    if (!/^\d{3,4}$/.test(cvv)) newErrors.cvv = "Invalid CVV.";
+    if (!/^\d{3}$/.test(cvv)) newErrors.cvv = "Invalid CVV.";
     if (!address) newErrors.address = "Address is required.";
     if (!state) newErrors.state = "State is required.";
     if (!/^\d{5}(-\d{4})?$/.test(zipcode))
