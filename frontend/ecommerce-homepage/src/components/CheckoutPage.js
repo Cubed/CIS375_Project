@@ -28,13 +28,24 @@ const CheckoutPage = () => {
   );
   const [cvv, setCvv] = useState(user?.savedPaymentInfo?.cvv || "");
   const [deliveryDate, setDeliveryDate] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const isCvvValid = (cvv) => /^\d{3}$/.test(cvv); // CVV must be exactly 3 digits
+  const isCvvValid = (cvv) => /^\d{3}$/.test(cvv);
+
   const isExpiryDateValid = (expiryDate) => {
-    const [month, year] = expiryDate.split("/"); // Split by '/' for MM/YY format
-    const expiry = new Date(`20${year}`, month - 1); // Convert MM/YY to Date object
-    const now = new Date();
-    return expiry > now; // Expiry date must be in the future
+    const [month, year] = expiryDate.split("/").map(Number); // Split by '/' for MM/YY format
+    const currentYear = new Date().getFullYear() % 100; // Get the last two digits of the current year
+    const currentMonth = new Date().getMonth() + 1; // Get the current month (1-based)
+
+    if (!month || !year || month < 1 || month > 12 || year < currentYear) {
+      return false;
+    }
+
+    if (year === currentYear && month <= currentMonth) {
+      return false;
+    }
+
+    return true; // Expiry date is valid
   };
 
   useEffect(() => {
@@ -50,6 +61,8 @@ const CheckoutPage = () => {
   }, []);
 
   const handleConfirmPurchase = async () => {
+    setErrorMessage("");
+
     if (
       !user &&
       (!address ||
@@ -61,32 +74,30 @@ const CheckoutPage = () => {
         !expiryDate ||
         !cvv)
     ) {
-      alert("Please enter all required information.");
+      setErrorMessage("Please fill out all required information.");
       return;
     }
 
     if (!isCvvValid(cvv)) {
-      alert("Invalid CVV. It must be exactly 3 digits.");
+      setErrorMessage("Invalid CVV. It must be exactly 3 digits.");
       return;
     }
 
     if (!isExpiryDateValid(expiryDate)) {
-      alert("Invalid Expiry Date. It must be in the future.");
+      setErrorMessage(
+        "Invalid Expiry Date. It must be a valid future date (MM/YY)."
+      );
       return;
     }
 
     try {
       if (user) {
-        // Authenticated user purchase
         const token = localStorage.getItem("token");
 
         for (const item of cartItems) {
           if (!item.size || !item.quantity) {
-            console.error("Missing size or quantity in cart item:", item);
             alert(
-              `Error: Item "${
-                item.productDetail?.name || item.productId
-              }" is missing size or quantity.`
+              `Error: Item "${item.productId}" is missing size or quantity.`
             );
             return;
           }
@@ -115,18 +126,11 @@ const CheckoutPage = () => {
       alert(
         `Purchase confirmed! Your order will be delivered on ${deliveryDate}.`
       );
-      clearCart(); // Clear the cart after successful purchase
-      navigate("/"); // Redirect to homepage
+      clearCart();
+      navigate("/");
     } catch (error) {
       console.error("Error confirming purchase:", error);
-      if (error.response?.data?.errors) {
-        const errorMessages = error.response.data.errors
-          .map((err) => err.msg)
-          .join(", ");
-        alert(`Error: ${errorMessages}`);
-      } else {
-        alert("There was an error processing your purchase. Please try again.");
-      }
+      setErrorMessage("There was an error processing your purchase.");
     }
   };
 
@@ -134,6 +138,7 @@ const CheckoutPage = () => {
     <div className="checkout-container">
       <form className="checkout-form" onSubmit={(e) => e.preventDefault()}>
         <h1>Checkout</h1>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
         {!user && (
           <>
             <h2>Shipping Information</h2>
@@ -143,7 +148,6 @@ const CheckoutPage = () => {
               placeholder="Address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              required
             />
             <input
               className="checkout-form-input"
@@ -151,7 +155,6 @@ const CheckoutPage = () => {
               placeholder="City"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              required
             />
             <input
               className="checkout-form-input"
@@ -159,7 +162,6 @@ const CheckoutPage = () => {
               placeholder="State"
               value={state}
               onChange={(e) => setState(e.target.value)}
-              required
             />
             <input
               className="checkout-form-input"
@@ -167,7 +169,6 @@ const CheckoutPage = () => {
               placeholder="Zip Code"
               value={zipCode}
               onChange={(e) => setZipCode(e.target.value)}
-              required
             />
 
             <h2>Payment Information</h2>
@@ -177,7 +178,6 @@ const CheckoutPage = () => {
               placeholder="Card Number"
               value={cardNumber}
               onChange={(e) => setCardNumber(e.target.value)}
-              required
             />
             <input
               className="checkout-form-input"
@@ -185,15 +185,13 @@ const CheckoutPage = () => {
               placeholder="Card Holder Name"
               value={cardHolderName}
               onChange={(e) => setCardHolderName(e.target.value)}
-              required
             />
             <input
               className="checkout-form-input"
-              type="month"
+              type="text"
               placeholder="Expiry Date (MM/YY)"
               value={expiryDate}
               onChange={(e) => setExpiryDate(e.target.value)}
-              required
             />
             <input
               className="checkout-form-input"
@@ -202,7 +200,6 @@ const CheckoutPage = () => {
               value={cvv}
               onChange={(e) => setCvv(e.target.value)}
               maxLength="3"
-              required
             />
           </>
         )}
