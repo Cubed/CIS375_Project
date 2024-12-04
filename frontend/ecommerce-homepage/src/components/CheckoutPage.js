@@ -31,8 +31,8 @@ const CheckoutPage = () => {
 
   const isCvvValid = (cvv) => /^\d{3}$/.test(cvv); // CVV must be exactly 3 digits
   const isExpiryDateValid = (expiryDate) => {
-    const [year, month] = expiryDate.split("-");
-    const expiry = new Date(year, month - 1); // Convert MM/YY to Date object
+    const [month, year] = expiryDate.split("/"); // Split by '/' for MM/YY format
+    const expiry = new Date(`20${year}`, month - 1); // Convert MM/YY to Date object
     const now = new Date();
     return expiry > now; // Expiry date must be in the future
   };

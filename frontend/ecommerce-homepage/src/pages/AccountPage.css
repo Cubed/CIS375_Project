@@ -33,7 +33,7 @@
 }
 
 .account-form input {
-  width: 100%;
+  width: 100%; /* Consistent width for all inputs */
   padding: 12px;
   margin: 8px 0;
   background-color: #333; /* Match autofill background */
@@ -60,7 +60,7 @@
 }
 
 .account-form .submit-button {
-  width: 100%;
+  width: 100%; /* Full width for the button */
   padding: 12px;
   background-color: #ffffff;
   color: #000000;
@@ -95,15 +95,7 @@
   }
 
   .account-form input {
-    width: calc(100% - 24px); /* Consistent size accounting for padding */
-    padding: 12px;
-    margin: 8px 0;
-    background-color: #333; /* Match autofill background */
-    color: #f5f5f5;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    box-sizing: border-box;
+    font-size: 14px; /* Adjust font size for smaller screens */
   }
 
   .account-form .submit-button {
