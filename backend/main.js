@@ -570,17 +570,22 @@ app.post(
 // Get Cart Total
 app.get("/cart/total", authenticateToken, async (req, res) => {
   try {
-    const cart = await Cart.findOne({ userId: req.user.id }).populate(
-      "products.productId"
-    );
+    // Dynamically populate productId when calculating total
+    const cart = await Cart.findOne({ userId: req.user.id }).populate({
+      path: "products.productId", // Dynamically populate here
+      model: "Product", // Explicitly set the model
+      select: "price name", // Select only the fields you need
+    });
+
     if (!cart) return res.status(404).send("Cart not found.");
 
     const total = cart.products.reduce((sum, item) => {
-      if (item.productId) {
+      if (item.productId && item.productId.price) {
         return sum + item.productId.price * item.quantity;
       }
       return sum;
     }, 0);
+
     res.send({ total });
   } catch (error) {
     console.error("Error calculating cart total:", error);
