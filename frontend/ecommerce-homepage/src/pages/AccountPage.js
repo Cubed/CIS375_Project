@@ -53,8 +53,24 @@ const AccountPage = () => {
     const newErrors = {};
 
     // Expiry Date validation: format should be MM/YY
-    if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(formData.expiryDate)) {
+    const expiryDateRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
+    if (!expiryDateRegex.test(formData.expiryDate)) {
       newErrors.expiryDate = "Expiry date must be in MM/YY format.";
+    } else {
+      const [month, year] = formData.expiryDate.split("/").map(Number);
+      const currentYear = new Date().getFullYear() % 100; // Get last two digits of the current year
+      const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-based
+
+      if (
+        year < currentYear || // Year is in the past
+        (year === currentYear && month <= currentMonth) || // Same year but earlier month
+        (year === currentYear &&
+          month === currentMonth + 1 &&
+          currentMonth !== 12) // Same year and next month but invalid
+      ) {
+        newErrors.expiryDate =
+          "Expiry date must be at least a month in the future.";
+      }
     }
 
     // CVV validation: must be exactly 3 digits
