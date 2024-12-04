@@ -198,6 +198,20 @@ const ProductDetail = () => {
       setCheckoutError("Please fill out all required fields.");
       return;
     }
+    // cvv validation
+    if (!/^\d{3}$/.test(cvv)) {
+      setCheckoutError("CVV must be exactly 3 digits.");
+      return;
+    }
+    //expiration date validation
+    const [month, year] = expiryDate.split("/").map(Number);
+    const currentDate = new Date();
+    const expirationDate = new Date(`20${year}`, month - 1); // Adjust year and month
+
+    if (isNaN(month) || isNaN(year) || expirationDate <= currentDate) {
+      setCheckoutError("Expiration date must be a valid future date (MM/YY).");
+      return;
+    }
 
     if (quantity < 1) {
       setCheckoutError("Quantity must be at least 1.");
@@ -214,7 +228,10 @@ const ProductDetail = () => {
         paymentInfo: { cardNumber, cardHolderName, expiryDate, cvv },
       };
 
-      await axios.post(`http://localhost:3001/purchase/${productId}/guest`, payload);
+      await axios.post(
+        `http://localhost:3001/purchase/${productId}/guest`,
+        payload
+      );
       alert(
         `Purchase confirmed! Your order will be delivered on ${deliveryDate}.`
       );
@@ -434,7 +451,9 @@ const ProductDetail = () => {
             reviews.map((review) => (
               <div key={review._id} className="review-item">
                 <div className="review-header">
-                  <div className="review-stars">{renderStars(review.rating)}</div>
+                  <div className="review-stars">
+                    {renderStars(review.rating)}
+                  </div>
                   <span className="review-date">
                     {new Date(review.createdAt).toLocaleDateString()}
                   </span>
