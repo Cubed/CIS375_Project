@@ -119,17 +119,25 @@ const HomePage = () => {
         <div className="filter-group">
           <label>Tags</label>
           <div className="tag-options">
-            {["leather", "jacket", "outerwear", "dress", "accessory"].map(
-              (tag) => (
-                <button
-                  key={tag}
-                  onClick={() => toggleTag(tag)}
-                  className={selectedTags.includes(tag) ? "active" : ""}
-                >
-                  {tag}
-                </button>
-              )
-            )}
+            {[
+              "leather",
+              "jacket",
+              "outerwear",
+              "dress",
+              "accessory",
+              "tags",
+              "test",
+              "testing",
+              "asdf",
+            ].map((tag) => (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className={selectedTags.includes(tag) ? "active" : ""}
+              >
+                {tag}
+              </button>
+            ))}
           </div>
         </div>
         <div className="filter-group">
