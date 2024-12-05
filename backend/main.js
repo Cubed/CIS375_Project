@@ -122,10 +122,11 @@ const Entitlement = mongoose.model("Entitlement", entitlementSchema);
 
 // Review Schema
 const reviewSchema = new mongoose.Schema({
-  userId: mongoose.Schema.Types.ObjectId,
-  productId: mongoose.Schema.Types.ObjectId,
-  rating: Number,
-  comment: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  productId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  rating: { type: Number, required: true },
+  comment: { type: String },
+  createdAt: { type: Date, default: Date.now }, // Add this field
 });
 const Review = mongoose.model("Review", reviewSchema);
 
@@ -993,6 +994,7 @@ app.post(
       .isInt({ min: 1, max: 5 })
       .withMessage("Rating must be between 1 and 5."),
     body("comment").optional().isString(),
+    body("createdAt").optional().isISO8601().toDate(), // Validate if sent
   ],
   async (req, res) => {
     // Validate input
@@ -1001,7 +1003,7 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { rating, comment } = req.body;
+    const { rating, comment, createdAt } = req.body; // Include createdAt
     try {
       // Check if product exists
       const product = await Product.findById(req.params.id);
@@ -1012,6 +1014,7 @@ app.post(
         productId: req.params.id,
         rating,
         comment,
+        createdAt, // Use the provided date if present
       });
       await review.save();
       res.status(201).send(review);

@@ -112,11 +112,14 @@ const ProductDetail = () => {
     }
 
     try {
+      // Include the current date in the payload
+      const currentDate = new Date().toISOString();
       await axios.post(
         `http://localhost:3001/products/${productId}/review`,
         {
           rating: reviewRating,
           comment: reviewComment,
+          createdAt: currentDate, // Add the current date
         },
         {
           headers: {
