@@ -986,7 +986,6 @@ app.post(
 // Review System
 
 // Add a review to a product
-// Add a review to a product
 app.post(
   "/products/:id/review",
   authenticateToken,
@@ -1030,6 +1029,12 @@ app.post(
         return res
           .status(403)
           .send("You can only review a product that you have purchased.");
+      }
+
+      // Check if the user has already reviewed the product
+      const existingReview = await Review.findOne({ userId, productId });
+      if (existingReview) {
+        return res.status(400).send("You have already reviewed this product.");
       }
 
       // Save the review
