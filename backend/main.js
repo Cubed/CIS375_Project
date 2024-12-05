@@ -986,6 +986,7 @@ app.post(
 // Review System
 
 // Add a review to a product
+// Add a review to a product
 app.post(
   "/products/:id/review",
   authenticateToken,
@@ -1003,19 +1004,43 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { rating, comment, createdAt } = req.body; // Include createdAt
-    try {
-      // Check if product exists
-      const product = await Product.findById(req.params.id);
-      if (!product) return res.status(404).send("Product not found.");
+    const { rating, comment, createdAt } = req.body;
+    const userId = req.user.id;
+    const productId = req.params.id;
 
+    try {
+      // Check if the product exists
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).send("Product not found.");
+      }
+
+      // Check if the user has purchased the product
+      const order = await Order.findOne({
+        userId,
+        "products.productId": productId,
+      });
+
+      const entitlement = await Entitlement.findOne({
+        userId,
+        productId,
+      });
+
+      if (!order && !entitlement) {
+        return res
+          .status(403)
+          .send("You can only review a product that you have purchased.");
+      }
+
+      // Save the review
       const review = new Review({
-        userId: req.user.id,
-        productId: req.params.id,
+        userId,
+        productId,
         rating,
         comment,
         createdAt, // Use the provided date if present
       });
+
       await review.save();
       res.status(201).send(review);
     } catch (error) {

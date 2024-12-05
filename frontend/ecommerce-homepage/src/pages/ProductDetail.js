@@ -99,7 +99,6 @@ const ProductDetail = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    setReviewError(null);
 
     if (!token) {
       alert("Please log in to submit a review.");
@@ -107,7 +106,7 @@ const ProductDetail = () => {
     }
 
     if (reviewRating === 0) {
-      setReviewError("Please select a rating.");
+      alert("Please select a rating.");
       return;
     }
 
@@ -134,7 +133,11 @@ const ProductDetail = () => {
       refetch();
     } catch (error) {
       console.error("Error submitting review:", error);
-      setReviewError("Failed to submit review. Please try again later.");
+      if (error.response && error.response.status === 403) {
+        alert("You must purchase this product before leaving a review.");
+      } else {
+        alert("Failed to submit review. Please try again later.");
+      }
     }
   };
 
