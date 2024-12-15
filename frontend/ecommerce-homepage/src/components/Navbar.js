@@ -100,8 +100,6 @@ const Navbar = () => {
         <Link to="/" className="nav-logo">
           E-Commerce
         </Link>
-
-        {/* Search Form */}
         <div className="nav-search" ref={searchRef}>
           <input
             type="text"
@@ -116,8 +114,6 @@ const Navbar = () => {
           <button type="button" className="search-button" aria-label="Search">
             <SearchIcon className="nav-icon" />
           </button>
-
-          {/* Search Suggestions Dropdown */}
           {showSuggestions && searchResults.length > 0 && (
             <div className="search-suggestions">
               {searchResults.map((product) => (
@@ -134,7 +130,6 @@ const Navbar = () => {
         </div>
 
         <div className="nav-links">
-          {/* User Account Section */}
           <div className="nav-item" ref={dropdownRef}>
             <button
               className="icon-button"
@@ -170,8 +165,6 @@ const Navbar = () => {
               </div>
             )}
           </div>
-
-          {/* Cart Section */}
           <div className="nav-cart">
             <Link to="/cart" className="nav-cart-link">
               <CartIcon className="nav-icon" />

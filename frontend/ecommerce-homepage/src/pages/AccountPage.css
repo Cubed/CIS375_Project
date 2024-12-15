@@ -2,27 +2,27 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh; /* Ensure it always takes the full height */
-  width: 100%; /* Full width to prevent overflow */
-  padding: 20px; /* Add padding for smaller screens */
+  min-height: 100vh;
+  width: 100%;
+  padding: 20px;
   background-color: #0a0a0a;
   color: #f5f5f5;
-  box-sizing: border-box; /* Ensure padding is included in width/height */
-  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .account-form {
   background-color: #1c1c1c;
   padding: 30px;
   border-radius: 12px;
-  width: 90%; /* Make it more flexible for smaller screens */
+  width: 90%;
   max-width: 400px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5); /* Optional: Add shadow for aesthetics */
-  box-sizing: border-box; /* Include padding in the width */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
   animation: fadeIn 0.5s ease-in-out;
 }
 
@@ -33,10 +33,10 @@
 }
 
 .account-form input {
-  width: 100%; /* Consistent width for all inputs */
+  width: 100%;
   padding: 12px;
   margin: 8px 0;
-  background-color: #333; /* Match autofill background */
+  background-color: #333;
   color: #f5f5f5;
   border: none;
   border-radius: 8px;
@@ -49,18 +49,17 @@
   font-style: italic;
 }
 
-/* Autofill styling to maintain background and text color */
 .account-form input:-webkit-autofill,
 .account-form input:-webkit-autofill:focus,
 .account-form input:-webkit-autofill:hover,
 .account-form input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0px 1000px #333 inset; /* Match background color */
-  -webkit-text-fill-color: #f5f5f5; /* Match text color */
-  transition: background-color 5000s ease-in-out 0s; /* Prevent sudden changes */
+  -webkit-box-shadow: 0 0 0px 1000px #333 inset;
+  -webkit-text-fill-color: #f5f5f5;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .account-form .submit-button {
-  width: 100%; /* Full width for the button */
+  width: 100%;
   padding: 12px;
   background-color: #ffffff;
   color: #000000;
@@ -69,7 +68,7 @@
   border-radius: 8px;
   cursor: pointer;
   margin-top: 20px;
-  transition: background-color 0.3s ease; /* Smooth hover effect */
+  transition: background-color 0.3s ease;
 }
 
 .account-form .submit-button:hover {
@@ -84,29 +83,28 @@
   margin-bottom: 8px;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .account-container {
-    padding: 10px; /* Reduce padding on smaller screens */
+    padding: 10px;
   }
 
   .account-form {
-    padding: 20px; /* Adjust padding for better fit */
+    padding: 20px;
   }
 
   .account-form input {
-    font-size: 14px; /* Adjust font size for smaller screens */
+    font-size: 14px;
   }
 
   .account-form .submit-button {
-    font-size: 14px; /* Adjust button size */
+    font-size: 14px;
   }
 }
 
 @media (max-height: 500px) {
   .account-container {
-    align-items: flex-start; /* Start from the top for very short screens */
-    padding-top: 20px; /* Add spacing from the top */
+    align-items: flex-start;
+    padding-top: 20px;
   }
 }
 

@@ -1,16 +1,14 @@
-/* General container styling */
 .product-detail {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
-  color: #f5f5f5; /* White text for dark mode */
-  background-color: #1c1c1c; /* Dark background */
+  color: #f5f5f5;
+  background-color: #1c1c1c;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Product image */
 .product-detail-image {
   width: 100%;
   max-width: 400px;
@@ -20,9 +18,8 @@
   display: block;
 }
 
-/* Product title and price */
 .product-detail h2 {
-  font-size: 2rem; /* Larger font size */
+  font-size: 2rem;
   color: #f5f5f5;
   margin-bottom: 10px;
 }
@@ -30,7 +27,7 @@
 .product-detail p {
   font-size: 1.2rem;
   line-height: 1.8;
-  color: #dcdcdc; /* Slightly lighter for description */
+  color: #dcdcdc;
 }
 
 .price {
@@ -39,7 +36,6 @@
   margin-bottom: 20px;
 }
 
-/* Size Selection */
 .size-selection {
   margin-bottom: 15px;
   display: flex;
@@ -62,7 +58,6 @@
   text-align: center;
 }
 
-/* Quantity Selection */
 .quantity-selection {
   margin-bottom: 20px;
   display: flex;
@@ -86,7 +81,6 @@
   text-align: center;
 }
 
-/* Buttons */
 .buttons {
   display: flex;
   justify-content: center;
@@ -96,8 +90,8 @@
 
 .add-to-cart-button,
 .buy-now-button {
-  background-color: #ffffff; /* White button background */
-  color: #000000; /* Black text */
+  background-color: #ffffff;
+  color: #000000;
   padding: 12px 20px;
   font-size: 1.2rem;
   border-radius: 8px;
@@ -109,12 +103,11 @@
 
 .add-to-cart-button:hover,
 .buy-now-button:hover {
-  background-color: #0056b3; /* Blue hover background */
-  color: #ffffff; /* White text on hover */
+  background-color: #0056b3;
+  color: #ffffff;
   transform: translateY(-2px);
 }
 
-/* Confirmation and Guest Checkout Modals */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -157,8 +150,8 @@
 
 .confirm-button,
 .cancel-button {
-  background-color: #ffffff; /* White button */
-  color: #000000; /* Black text */
+  background-color: #ffffff;
+  color: #000000;
   padding: 12px 20px;
   font-size: 1rem;
   border-radius: 8px;
@@ -172,7 +165,6 @@
   color: #ffffff;
 }
 
-/* Reviews Section */
 .reviews-section {
   margin-top: 40px;
   background-color: #1c1c1c;
@@ -207,7 +199,6 @@
   color: #dcdcdc;
 }
 
-/* Review Form */
 .review-form {
   margin-top: 30px;
   background-color: #1c1c1c;
@@ -252,7 +243,6 @@
   cursor: not-allowed;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .size-selection,
   .quantity-selection {
@@ -266,7 +256,6 @@
   }
 }
 
-/* Scrollbar Styling */
 .reviews-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -280,39 +269,35 @@
   background-color: #555;
 }
 
-/* Input Fields Styling */
 .modal-content input[type="text"] {
-  width: 100%; /* Full width */
-  padding: 12px; /* Add padding for a nice feel */
-  margin: 8px 0; /* Add spacing between fields */
-  background-color: #333; /* Dark background for consistency */
-  color: #f5f5f5; /* White text for readability */
-  border: 1px solid #555; /* Subtle border for structure */
-  border-radius: 8px; /* Rounded corners for modern look */
-  font-size: 1rem; /* Standard text size */
-  box-sizing: border-box; /* Ensure padding is included in dimensions */
-  text-align: left; /* Align text to the left */
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background-color: #333;
+  color: #f5f5f5;
+  border: 1px solid #555;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  text-align: left;
 }
 
-/* Placeholder Styling */
 .modal-content input[type="text"]::placeholder {
-  color: #888; /* Lighter color for placeholder text */
-  font-style: italic; /* Italicize placeholder for distinction */
+  color: #888;
+  font-style: italic;
 }
 
-/* Autofill styling for consistent appearance */
 .modal-content input[type="text"]:-webkit-autofill,
 .modal-content input[type="text"]:-webkit-autofill:focus,
 .modal-content input[type="text"]:-webkit-autofill:hover,
 .modal-content input[type="text"]:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0px 1000px #333 inset; /* Match input background */
-  -webkit-text-fill-color: #f5f5f5; /* Match input text color */
+  -webkit-box-shadow: 0 0 0px 1000px #333 inset;
+  -webkit-text-fill-color: #f5f5f5;
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Focus Effect */
 .modal-content input[type="text"]:focus {
-  border-color: #0056b3; /* Blue border on focus */
-  outline: none; /* Remove default outline */
-  box-shadow: 0px 0px 5px #0056b3; /* Subtle glow effect on focus */
+  border-color: #0056b3;
+  outline: none;
+  box-shadow: 0px 0px 5px #0056b3;
 }
